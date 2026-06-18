@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Log</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+:root {
+  --bg: #0a0b0e;
+  --surface: #111318;
+  --surface2: #181c24;
+  --border: #1f2430;
+  --border2: #2a3045;
+  --text: #e2e6f0;
+  --muted: #505878;
+  --muted2: #8090b0;
+  --push: #f97316;
+  --pull: #3b82f6;
+  --legs-q: #a855f7;
+  --legs-f: #10b981;
+  --combo: #f59e0b;
+  --rest: #2a3045;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── HEADER ── */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,11,14,0.94);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px; font-weight: 700; letter-spacing: -0.5px;
+}
+.logo em { color: var(--push); font-style: normal; }
+.back-btn {
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text); padding: 7px 14px; border-radius: 10px;
+  cursor: pointer; font-size: 13px; font-family: 'Inter', sans-serif;
+  display: none; align-items: center; gap: 5px;
+}
+.back-btn:active { opacity: 0.7; }
+
+/* ── VIEWS ── */
+.view { display: none; padding-bottom: 80px; }
+.view.active { display: block; }
+
+/* ══ WEEK VIEW ══ */
+.week-top { padding: 20px 18px 10px; }
+.week-greeting {
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--muted2); margin-bottom: 4px;
+}
+.week-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px; font-weight: 700; letter-spacing: -0.5px;
+}
+
+.week-nav {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px 16px;
+}
+.week-nav button {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text); font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.week-range { font-size: 12px; color: var(--muted2); flex: 1; }
+
+/* stats */
+.stats-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px; padding: 0 18px 16px;
+}
+.stat-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 10px; text-align: center;
+}
+.stat-val {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px; font-weight: 700; color: var(--push);
+}
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
+
+/* day cards */
+.days-list { padding: 0 18px; display: flex; flex-direction: column; gap: 8px; }
+
+.day-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 14px 14px 0;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: border-color 0.15s;
+}
+.day-card:active { opacity: 0.8; }
+.day-card.is-rest { cursor: default; opacity: 0.55; }
+.day-card.is-rest:active { opacity: 0.55; }
+.day-card.is-done { border-color: #1a3526; background: #0c1910; }
+.day-card.is-today { border-color: var(--border2); }
+
+.day-stripe {
+  width: 4px; align-self: stretch; border-radius: 0 3px 3px 0; flex-shrink: 0;
+  min-height: 48px;
+}
+.stripe-push { background: var(--push); }
+.stripe-pull { background: var(--pull); }
+.stripe-legs-q { background: var(--legs-q); }
+.stripe-legs-f { background: var(--legs-f); }
+.stripe-combo { background: var(--combo); }
+.stripe-rest { background: var(--rest); }
+
+.day-main { flex: 1; min-width: 0; }
+.day-dow { font-size: 11px; color: var(--muted2); font-weight: 500; margin-bottom: 1px; }
+.day-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; font-weight: 700; margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.day-sub { font-size: 11px; color: var(--muted); }
+
+.day-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.type-pill {
+  font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.pill-push { background: rgba(249,115,22,0.15); color: var(--push); }
+.pill-pull { background: rgba(59,130,246,0.15); color: var(--pull); }
+.pill-legs-q { background: rgba(168,85,247,0.15); color: var(--legs-q); }
+.pill-legs-f { background: rgba(16,185,129,0.15); color: var(--legs-f); }
+.pill-combo { background: rgba(245,158,11,0.15); color: var(--combo); }
+.pill-rest { background: rgba(42,48,69,0.5); color: var(--muted2); }
+
+.day-check {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: transparent;
+}
+.day-card.is-done .day-check { background: var(--success); border-color: var(--success); color: #fff; }
+
+.today-pip {
+  position: absolute; top: 8px; left: 8px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--push); box-shadow: 0 0 6px var(--push);
+}
+
+/* ══ SESSION VIEW ══ */
+.session-top { padding: 18px 18px 12px; }
+.session-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; padding: 4px 10px;
+  border-radius: 8px; text-transform: uppercase; letter-spacing: 0.7px;
+  margin-bottom: 8px;
+}
+.session-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px;
+}
+.session-sub { font-size: 13px; color: var(--muted2); line-height: 1.4; }
+
+.ex-list { padding: 0 18px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 110px; }
+
+/* exercise card */
+.ex-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+}
+.ex-head {
+  padding: 13px 14px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+}
+.ex-num {
+  width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; margin-top: 1px;
+}
+.ex-meta { flex: 1; min-width: 0; }
+.ex-name { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.ex-muscle { font-size: 11px; color: var(--muted2); margin-bottom: 3px; }
+.ex-spec { font-size: 11px; color: var(--muted); }
+.ex-suggest {
+  font-size: 11px; font-weight: 600; color: var(--warning);
+  background: rgba(234,179,8,0.1); padding: 2px 7px; border-radius: 5px;
+  display: inline-block; margin-top: 4px;
+}
+.ex-chevron { color: var(--muted); font-size: 11px; margin-top: 5px; flex-shrink: 0; transition: transform 0.2s; }
+.ex-card.open .ex-chevron { transform: rotate(180deg); }
+
+.ex-body { display: none; border-top: 1px solid var(--border); }
+.ex-card.open .ex-body { display: block; }
+
+.ex-how {
+  padding: 13px 14px; background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.ex-how h4 {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--muted); margin-bottom: 9px;
+}
+.ex-how ol { padding-left: 16px; display: flex; flex-direction: column; gap: 5px; }
+.ex-how li { font-size: 12px; line-height: 1.5; color: #9aa0bc; }
+.ex-tip {
+  margin-top: 10px; padding: 8px 11px;
+  background: rgba(249,115,22,0.07); border-left: 3px solid var(--push);
+  border-radius: 0 6px 6px 0; font-size: 11px; color: #9aa0bc; line-height: 1.4;
+}
+
+/* sets log */
+.sets-log { padding: 12px 14px 14px; }
+.sets-log-head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+}
+.sets-log-head h4 {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--muted);
+}
+.prev-pr { font-size: 11px; color: var(--success); font-weight: 600; }
+
+.col-labels {
+  display: grid; grid-template-columns: 28px 1fr 1fr 38px;
+  gap: 6px; margin-bottom: 5px;
+}
+.col-labels span {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--muted); text-align: center;
+}
+
+.set-rows { display: flex; flex-direction: column; gap: 5px; }
+.set-row { display: grid; grid-template-columns: 28px 1fr 1fr 38px; gap: 6px; align-items: center; }
+.set-n { font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; }
+.set-inp {
+  background: var(--bg); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 8px 6px; color: var(--text);
+  font-size: 13px; font-family: 'Inter', sans-serif;
+  text-align: center; width: 100%; transition: border-color 0.15s;
+}
+.set-inp:focus { outline: none; border-color: var(--push); }
+.set-inp::placeholder { color: var(--muted); font-size: 11px; }
+.set-ok {
+  width: 34px; height: 34px; border-radius: 8px;
+  border: 1px solid var(--border2); background: var(--surface2);
+  color: var(--muted); cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.set-ok.done { background: var(--success); border-color: var(--success); color: #fff; }
+
+/* session footer */
+.session-foot {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 12px 18px 16px;
+  background: rgba(10,11,14,0.96); backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+}
+.finish-btn {
+  width: 100%; background: var(--push); color: #fff;
+  border: none; padding: 14px; border-radius: 12px;
+  font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; letter-spacing: 0.2px; transition: opacity 0.15s;
+}
+.finish-btn:active { opacity: 0.85; }
+.finish-btn.done-state { background: #1a3526; color: var(--success); border: 1px solid var(--success); }
+
+/* ══ HISTORY VIEW ══ */
+.hist-top { padding: 20px 18px 12px; }
+.hist-top h2 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 3px; }
+.hist-top p { font-size: 13px; color: var(--muted2); }
+.hist-list { padding: 0 18px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 30px; }
+.hist-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 13px 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hist-stripe { width: 3px; align-self: stretch; border-radius: 3px; min-height: 40px; flex-shrink: 0; }
+.hist-info { flex: 1; }
+.hist-date { font-size: 11px; color: var(--muted2); margin-bottom: 2px; }
+.hist-name { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; }
+.hist-sets { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.hist-badge {
+  font-size: 10px; font-weight: 700; padding: 4px 9px; border-radius: 7px;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+
+.empty-state { text-align: center; padding: 50px 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+/* ══ BOTTOM NAV ══ */
+.bnav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(17,19,24,0.97); backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  display: flex; padding: 6px 0 14px;
+}
+.bnav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  padding: 5px 0; font-size: 10px; font-family: 'Inter', sans-serif;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px;
+  transition: color 0.15s;
+}
+.bnav-btn .ico { font-size: 19px; }
+.bnav-btn.active { color: var(--push); }
+
+/* toast */
+.toast {
+  position: fixed; bottom: 86px; left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--success); color: #fff;
+  padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+  opacity: 0; transition: opacity 0.25s, transform 0.25s; z-index: 300; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Training<em>.</em>Log</div>
+  <button class="back-btn" id="backBtn" onclick="goBack()">← Volver</button>
+</div>
+
+<div class="view active" id="viewWeek">
+  <div class="week-top">
+    <div class="week-greeting">Plan semanal</div>
+    <div class="week-title" id="weekTitle">Esta semana</div>
+  </div>
+  <div class="week-nav">
+    <button onclick="changeWeek(-1)">‹</button>
+    <span class="week-range" id="weekRange"></span>
+    <button onclick="changeWeek(1)">›</button>
+  </div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-val" id="sSessions">0</div><div class="stat-lbl">Sesiones</div></div>
+    <div class="stat-box"><div class="stat-val" id="sStreak">0</div><div class="stat-lbl">Racha</div></div>
+    <div class="stat-box"><div class="stat-val" id="sSets">0</div><div class="stat-lbl">Sets totales</div></div>
+  </div>
+  <div class="days-list" id="daysList"></div>
+</div>
+
+<div class="view" id="viewSession">
+  <div class="session-top">
+    <div class="session-pill" id="sPill"></div>
+    <div class="session-title" id="sTitle"></div>
+    <div class="session-sub" id="sSub"></div>
+  </div>
+  <div class="ex-list" id="exList"></div>
+  <div class="session-foot">
+    <button class="finish-btn" id="finishBtn" onclick="finishSession()">Marcar sesión completada ✓</button>
+  </div>
+</div>
+
+<div class="view" id="viewHistory">
+  <div class="hist-top">
+    <h2>Historial</h2>
+    <p>Sesiones completadas</p>
+  </div>
+  <div class="hist-list" id="histList"></div>
+</div>
+
+<div class="bnav" id="bnav">
+  <button class="bnav-btn active" id="navWeek" onclick="showView('week')"><span class="ico">📅</span>Semana</button>
+  <button class="bnav-btn" id="navHist" onclick="showView('history')"><span class="ico">📊</span>Historial</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// PERFIL DEL USUARIO
+// ══════════════════════════════════════════════════
+const USER = { weight: 80.8, height: 165 };
+
+// ══════════════════════════════════════════════════
+// PLAN SEMANAL
+// dow: 0=Dom 1=Lun 2=Mar 3=Mie 4=Jue 5=Vie 6=Sab
+// ══════════════════════════════════════════════════
+const WEEK_PLAN = [
+  { dow: 1, type: 'push',   title: 'Empuje',              sub: 'Pecho · Hombros · Tríceps' },
+  { dow: 2, type: 'pull',   title: 'Jale',                sub: 'Espalda · Bíceps' },
+  { dow: 3, type: 'legs-q', title: 'Piernas — Quad',      sub: 'Cuádriceps · Pantorrilla · Core' },
+  { dow: 4, type: 'rest',   title: 'Descanso',            sub: 'Recuperación activa' },
+  { dow: 5, type: 'legs-f', title: 'Piernas — Femoral',   sub: 'Femorales · Glúteos · Abductores' },
+  { dow: 6, type: 'combo',  title: 'Empuje + Jale',       sub: 'Sesión corta — cierre de semana' },
+  { dow: 0, type: 'rest',   title: 'Descanso',            sub: 'Tu día libre — descansa bien' },
+];
+
+const TYPE_META = {
+  push:   { label: 'Empuje',   pillClass: 'pill-push',   stripeClass: 'stripe-push',   color: 'var(--push)' },
+  pull:   { label: 'Jale',     pillClass: 'pill-pull',   stripeClass: 'stripe-pull',   color: 'var(--pull)' },
+  'legs-q': { label: 'Piernas Q', pillClass: 'pill-legs-q', stripeClass: 'stripe-legs-q', color: 'var(--legs-q)' },
+  'legs-f': { label: 'Piernas F', pillClass: 'pill-legs-f', stripeClass: 'stripe-legs-f', color: 'var(--legs-f)' },
+  combo:  { label: 'Combo',    pillClass: 'pill-combo',  stripeClass: 'stripe-combo',  color: 'var(--combo)' },
+  rest:   { label: 'Descanso', pillClass: 'pill-rest',   stripeClass: 'stripe-rest',   color: 'var(--rest)' },
+};
+
+// ══════════════════════════════════════════════════
+// EJERCICIOS
+// suggest: peso de arranque basado en 80.8kg / intermedio
+// ══════════════════════════════════════════════════
+const SESSIONS = {
+
+push: {
+  exercises: [
+    {
+      name: 'Push-up Manos Anchas',
+      muscle: 'Pecho mayor · Hombro anterior · Tríceps',
+      spec: '4 × Máx reps · Peso corporal',
+      suggest: 'Peso corporal — apunta a 15+ reps',
+      sets: 4, repsHint: 'Máx',
+      instructions: [
+        'Manos ligeramente más anchas que hombros, dedos al frente o levemente hacia afuera.',
+        'Cuerpo rígido: activa abdomen y aprieta glúteos, sin hundir la cadera.',
+        'Baja hasta ~2 cm del suelo, codos a 45° respecto al torso.',
+        'Empuja hasta extender los codos sin bloquearlos.',
+        'Inhala al bajar, exhala al empujar.'
+      ],
+      tip: 'Si llegas a 20+ reps fácil, cruza una banda de resistencia sobre la espalda para agregar carga.'
+    },
+    {
+      name: 'Press de Hombro Sentado',
+      muscle: 'Deltoides anterior y medial · Tríceps',
+      spec: '4 × 10-12 · Mancuernas',
+      suggest: '~7-8 kg por mancuerna de arranque',
+      sets: 4, repsHint: '10-12',
+      instructions: [
+        'Siéntate en el tapete con piernas cruzadas o extendidas. Espalda erguida.',
+        'Mancuernas a la altura de hombros, palmas al frente.',
+        'Presiona hacia arriba hasta casi extender los codos.',
+        'Baja con control — 2-3 segundos de bajada.',
+        'Mantén el abdomen apretado para no arquear la espalda baja.'
+      ],
+      tip: 'Con tus mancuernas ajustables ya tienes suficiente para progresar varios meses aquí. Sube 1 disco cuando completes las 12 con facilidad en las 4 series.'
+    },
+    {
+      name: 'Elevación Lateral',
+      muscle: 'Deltoides medial',
+      spec: '3 × 15 · Banda amarilla/verde o mancuerna 1-2 kg',
+      suggest: 'Banda amarilla o mancuerna 1 kg — sube a verde cuando 15 reps se sientan fáciles',
+      sets: 3, repsHint: '15',
+      instructions: [
+        'De pie o sentado. Codos ligeramente flexionados (~15°), nunca rectos.',
+        'Sube los brazos lateralmente hasta la altura del hombro — no más.',
+        'Al llegar arriba el dorso de la mano apunta hacia el techo (como vaciar una jarra).',
+        'Baja 3 segundos. El negativo es donde más crece el deltoides.',
+        'No uses impulso del torso ni encorves los hombros.'
+      ],
+      tip: 'Este músculo responde al volumen más que al peso. Más lento, más reps, siempre gana sobre más kilos.'
+    },
+    {
+      name: 'Extensión de Tríceps sobre Cabeza',
+      muscle: 'Tríceps — porción larga (estiramiento máximo)',
+      spec: '3 × 12-15 · Banda en puerta (anclaje alto) o mancuerna',
+      suggest: 'Banda azul en puerta, o mancuerna de ~6 kg sostenida con ambas manos',
+      sets: 3, repsHint: '12-15',
+      instructions: [
+        'Ancla la banda en la parte alta de la puerta. Toma los extremos con ambas manos.',
+        'Da un paso al frente para crear tensión. Inclínate ligeramente.',
+        'Codos fijos arriba y a los lados de la cabeza — solo mueve el antebrazo.',
+        'Extiende hacia abajo hasta recta completa. Aprieta el tríceps arriba.',
+        'Regresa con control — no dejes que la banda te jale de golpe.'
+      ],
+      tip: 'La porción larga solo se activa completamente con el brazo elevado. Este ejercicio es el mejor para masa total del tríceps.'
+    },
+    {
+      name: 'Patada de Tríceps (Kickback)',
+      muscle: 'Tríceps — porción lateral (contracción máxima)',
+      spec: '3 × 12 · Mancuerna',
+      suggest: '~5-6 kg por brazo de arranque',
+      sets: 3, repsHint: '12',
+      instructions: [
+        'Inclínate hacia adelante ~45°. Apoya una mano en la pared o muslo.',
+        'Codo pegado al costado del torso, antebrazo colgando a 90°.',
+        'Extiende el brazo hacia atrás hasta que quede completamente recto.',
+        'Aprieta el tríceps en la posición extendida — mantén 1 segundo.',
+        'Baja con control. Completa reps de un lado y cambia.'
+      ],
+      tip: 'Mantén el codo fijo — si lo mueves hacia arriba al extender, estás usando el hombro. El codo es el pivote inmóvil.'
+    },
+    {
+      name: 'Pulldown de Tríceps (Banda en Puerta)',
+      muscle: 'Tríceps — porción medial y lateral',
+      spec: '3 × 15 · Banda azul/roja en puerta (anclaje alto)',
+      suggest: 'Banda azul de arranque, combina azul+verde cuando 15 reps se sientan ligeras',
+      sets: 3, repsHint: '15',
+      instructions: [
+        'Ancla la banda en la parte alta de la puerta. Párate frente a ella.',
+        'Toma la banda con ambas manos, palmas hacia abajo. Codos a los lados del torso, fijos.',
+        'Jala hacia abajo extendiendo los brazos completamente.',
+        'Aprieta el tríceps abajo — 1 segundo de contracción.',
+        'Regresa lento hasta que los antebrazos queden paralelos al suelo.'
+      ],
+      tip: 'Los tres ejercicios de tríceps atacan ángulos distintos. Kickback = contracción pico. Extensión cabeza = estiramiento. Pulldown = rango medio. Juntos cubren todo el músculo.'
+    },
+  ]
+},
+
+pull: {
+  exercises: [
+    {
+      name: 'Remo con Banda (Anclaje Medio)',
+      muscle: 'Dorsal · Romboides · Trapecio medio · Bíceps',
+      spec: '4 × 12 · Banda azul o roja en puerta',
+      suggest: 'Banda azul de arranque — combina azul+verde para más tensión',
+      sets: 4, repsHint: '12',
+      instructions: [
+        'Ancla la banda en la bisagra o perilla a altura de cadera.',
+        'Siéntate en el suelo, piernas extendidas o ligeramente flexionadas.',
+        'Toma la banda con ambas manos, brazos extendidos al frente.',
+        'Jala hacia el abdomen apretando los codos contra el cuerpo.',
+        'Aprieta los omóplatos al final — mantén 1 segundo.',
+        'Regresa lento. No te impulses con la espalda baja.'
+      ],
+      tip: 'Piensa "meter el codo al bolsillo trasero". Eso activa el dorsal correctamente y saca al bíceps del movimiento.'
+    },
+    {
+      name: 'Pullover en Piso',
+      muscle: 'Dorsal · Pecho · Serrato anterior',
+      spec: '3 × 12 · Mancuerna pesada',
+      suggest: '~9-10 kg (mancuerna cargada al máximo)',
+      sets: 3, repsHint: '12',
+      instructions: [
+        'Acuéstate boca arriba, rodillas flexionadas, pies planos.',
+        'Toma una mancuerna vertical con ambas manos agarrando el disco superior.',
+        'Extiende los brazos sobre el pecho, luego bájalos hacia atrás sobre la cabeza.',
+        'Codos ligeramente flexionados. Baja hasta sentir el estiramiento en el dorsal.',
+        'Regresa con control al punto inicial jalando desde el dorsal, no el hombro.'
+      ],
+      tip: 'Si sientes los hombros trabajar más que la espalda, reduce el rango de movimiento. El movimiento sale del dorsal.'
+    },
+    {
+      name: 'Curl de Bíceps',
+      muscle: 'Bíceps braquial · Braquial',
+      spec: '4 × 10-12 · Mancuernas',
+      suggest: '~9 kg por mancuerna (20 lb) — tu nivel conocido',
+      sets: 4, repsHint: '10-12',
+      instructions: [
+        'De pie, mancuernas a los lados, palmas al frente.',
+        'Codos fijos a los costados del torso — no los muevas durante el movimiento.',
+        'Sube contrayendo el bíceps hasta que el antebrazo quede vertical.',
+        'Baja 2-3 segundos de forma controlada hasta extensión completa.',
+        'Alterna brazos o sube juntos — ambas opciones válidas.'
+      ],
+      tip: 'El error más común es mover los codos hacia adelante. Si lo haces, le estás quitando trabajo al bíceps y dándoselo al hombro.'
+    },
+    {
+      name: 'Curl Martillo',
+      muscle: 'Braquial · Braquiorradial · Bíceps',
+      spec: '3 × 10 · Mancuernas',
+      suggest: '~8-9 kg por mancuerna',
+      sets: 3, repsHint: '10',
+      instructions: [
+        'Toma las mancuernas con agarre neutro (palmas enfrentadas) — como sostener martillos.',
+        'Codos fijos a los lados.',
+        'Sube alternando o juntos. No gires la muñeca — mantén el agarre neutro todo el tiempo.',
+        'Baja con control completo.'
+      ],
+      tip: 'El curl martillo construye el braquial debajo del bíceps. Eso hace que el brazo se vea más grueso aunque el bíceps en sí no haya cambiado.'
+    },
+    {
+      name: 'Remo en T con Banda (Anclaje Bajo)',
+      muscle: 'Trapecio · Romboides · Dorsal',
+      spec: '3 × 12 · Banda roja en puerta (anclaje bajo)',
+      suggest: 'Banda roja — combina roja+verde para más tensión',
+      sets: 3, repsHint: '12',
+      instructions: [
+        'Ancla la banda en la parte baja de la puerta.',
+        'Inclínate hacia adelante, espalda casi paralela al suelo.',
+        'Toma la banda con ambas manos, brazos extendidos.',
+        'Jala abriendo los codos hacia los lados (como alas) — diferente al remo normal.',
+        'Aprieta los omóplatos al final con fuerza.'
+      ],
+      tip: 'Diferencia clave vs remo normal: aquí los codos van hacia afuera, trabajas más trapecio y romboides. Los dos ejercicios se complementan.'
+    },
+    {
+      name: 'Curl Concentrado',
+      muscle: 'Bíceps — pico y contracción máxima',
+      spec: '3 × 10 cada brazo · Mancuerna',
+      suggest: '~7-8 kg — menos que el curl normal, el pico requiere aislamiento limpio',
+      sets: 3, repsHint: '10 c/brazo',
+      instructions: [
+        'Siéntate en el tapete con piernas abiertas.',
+        'Apoya el codo derecho en la cara interna del muslo derecho.',
+        'Baja la mancuerna completamente, luego sube contrayendo el bíceps.',
+        'Supina (gira) la muñeca al subir para mayor activación del pico.',
+        'Mantén la contracción 1 segundo arriba. Cambia de brazo.'
+      ],
+      tip: 'El pico del bíceps se trabaja mejor con aislamiento total. Concéntrate en "apretar" en el punto más alto, no solo en subir el peso.'
+    },
+  ]
+},
+
+'legs-q': {
+  exercises: [
+    {
+      name: 'Sentadilla con Banda',
+      muscle: 'Cuádriceps · Glúteo · Femoral · Core',
+      spec: '4 × 15 · Banda azul/roja sobre hombros',
+      suggest: 'Banda azul. Si llegas a 15 reps fácil, combina azul+amarilla',
+      sets: 4, repsHint: '15',
+      instructions: [
+        'Pisa la banda con pies al ancho de hombros. Pasa la banda sobre el trapecio.',
+        'Puntas de pies ligeramente hacia afuera (~30°).',
+        'Baja como si fueras a sentarte en una silla detrás de ti — espalda recta.',
+        'Rodillas en la dirección de los pies — no dejes que colapsen hacia adentro.',
+        'Baja hasta muslos paralelos al suelo o más. Sube empujando con los talones.'
+      ],
+      tip: 'Profundidad > peso. Sentadilla al paralelo activa el glúteo 40% más que la media sentadilla. Prioriza bajar bien antes de agregar tensión.'
+    },
+    {
+      name: 'Zancada Estacionaria',
+      muscle: 'Cuádriceps · Glúteo · Estabilizadores de rodilla',
+      spec: '4 × 12 cada pierna · Mancuernas',
+      suggest: '~7-8 kg por mancuerna',
+      sets: 4, repsHint: '12 c/pierna',
+      instructions: [
+        'Da un paso largo hacia adelante. Rodilla trasera apunta al suelo.',
+        'Baja hasta que la rodilla trasera casi toque el tapete.',
+        'Rodilla delantera no sobrepasa el tobillo. Torso erguido.',
+        'Empuja con el talón delantero para subir.',
+        'Completa todas las reps de un lado antes de cambiar.'
+      ],
+      tip: 'Paso más largo = más glúteo. Paso más corto = más cuádriceps. Úsalo a tu favor según el día.'
+    },
+    {
+      name: 'Sentadilla Sumo',
+      muscle: 'Aductores · Cuádriceps interno · Glúteo',
+      spec: '3 × 15 · Mancuerna central',
+      suggest: '~9-10 kg (mancuerna cargada, sostenida al centro con ambas manos)',
+      sets: 3, repsHint: '15',
+      instructions: [
+        'Pies más anchos que los hombros, puntas bien abiertas (~45°).',
+        'Sostén una mancuerna vertical con ambas manos al frente del cuerpo.',
+        'Baja manteniendo espalda recta y pecho arriba.',
+        'Rodillas siguen la dirección de los pies.',
+        'Sube apretando aductores y glúteo en el punto más alto.'
+      ],
+      tip: 'Si no sientes estiramiento en la cara interna del muslo, abre más los pies. Eso es la señal de que estás activando los aductores.'
+    },
+    {
+      name: 'Extensión de Rodilla en Piso',
+      muscle: 'Cuádriceps — aislamiento',
+      spec: '3 × 15 cada pierna · Polaina 5 lb',
+      suggest: 'Polaina 5 lb (2.27 kg) — suficiente para aislamiento',
+      sets: 3, repsHint: '15 c/pierna',
+      instructions: [
+        'Siéntate con la espalda apoyada en la pared. Polaina en el tobillo.',
+        'Pierna ligeramente flexionada en el punto de inicio.',
+        'Extiende hasta casi bloquear la rodilla. Contrae el cuádriceps arriba.',
+        'Mantén 1 segundo en la contracción máxima.',
+        'Baja con 3 segundos de control — no dejes caer.'
+      ],
+      tip: 'Aislamiento puro. Ideal para cerrar la sesión de piernas cuando ya estás fatigado y los compuestos están fuera de escena.'
+    },
+    {
+      name: 'Elevación de Pantorrilla Unilateral',
+      muscle: 'Gastrocnemio · Soleo',
+      spec: '4 × 20 cada pierna · Peso corporal',
+      suggest: 'Peso corporal. Si 20 reps se sienten fáciles, agrega mancuerna en la misma mano',
+      sets: 4, repsHint: '20 c/pierna',
+      instructions: [
+        'De pie, una mano apoyada en la pared para equilibrio. Levanta un pie.',
+        'Sube en la punta del pie que queda en el suelo — lo más alto posible.',
+        'Contrae la pantorrilla arriba. Mantén 1 segundo.',
+        'Baja completamente hasta que el talón toque el suelo. Rango completo.',
+        'No rebotes en la parte baja.'
+      ],
+      tip: 'La pantorrilla es uno de los músculos más resistentes del cuerpo. Necesita rango completo y volumen alto para crecer. No te saltes la bajada completa.'
+    },
+  ]
+},
+
+'legs-f': {
+  exercises: [
+    {
+      name: 'Hip Thrust en Piso',
+      muscle: 'Glúteo mayor · Femoral proximal',
+      spec: '4 × 15 · Banda sobre cadera o libre',
+      suggest: 'Banda azul/roja sobre cadera anclada en puerta, o sostén mancuerna pesada sobre cadera',
+      sets: 4, repsHint: '15',
+      instructions: [
+        'Acuéstate boca arriba. Rodillas flexionadas, pies planos al ancho de cadera.',
+        'Pon la banda o mancuerna sobre las caderas.',
+        'Empuja la cadera hacia arriba contrayendo el glúteo — cuerpo en línea recta.',
+        'Aprieta el glúteo al máximo arriba. Mantén 1-2 segundos.',
+        'Baja sin que la cadera toque el suelo — mantén tensión constante.'
+      ],
+      tip: 'Error más común: arquear la espalda baja en vez de contraer el glúteo. El movimiento sale de la cadera, no de la columna.'
+    },
+    {
+      name: 'Romanian Deadlift (RDL)',
+      muscle: 'Femoral · Glúteo · Erector espinal',
+      spec: '4 × 12 · Mancuernas cargadas',
+      suggest: '~9-10 kg por mancuerna (carga máxima disponible)',
+      sets: 4, repsHint: '12',
+      instructions: [
+        'De pie, mancuernas frente a ti con agarre neutro.',
+        'Rodillas ligeramente flexionadas y fijas durante todo el movimiento.',
+        'Inclínate hacia adelante empujando la cadera hacia ATRÁS — no solo doblarte.',
+        'Baja las mancuernas por las piernas hasta sentir estiramiento fuerte en el femoral.',
+        'Espalda neutral en todo momento — nunca redondees. Sube empujando la cadera al frente.'
+      ],
+      tip: 'Si no sientes el femoral estirarse, empuja más la cadera hacia atrás al bajar. La clave es la cadera, no la espalda.'
+    },
+    {
+      name: 'Curl de Femoral en Piso',
+      muscle: 'Femoral — aislamiento',
+      spec: '3 × 15 cada pierna · Polaina 5 lb',
+      suggest: 'Polaina 5 lb (2.27 kg)',
+      sets: 3, repsHint: '15 c/pierna',
+      instructions: [
+        'Acuéstate boca abajo en el tapete. Polaina en el tobillo.',
+        'Mantén la cadera presionada contra el suelo todo el tiempo.',
+        'Flexiona la rodilla llevando el talón hacia el glúteo.',
+        'Baja con 3 segundos de control completo.',
+        'No rebotes en la posición extendida.'
+      ],
+      tip: 'Para más activación, contrae el glúteo del mismo lado mientras haces el curl. Activa más fibras del femoral proximal.'
+    },
+    {
+      name: 'Abducción de Cadera Lateral',
+      muscle: 'Glúteo medio · Glúteo menor · TFL',
+      spec: '3 × 20 · Banda amarilla en tobillos',
+      suggest: 'Banda amarilla. Sube a verde cuando 20 reps se sientan fáciles',
+      sets: 3, repsHint: '20',
+      instructions: [
+        'De pie con banda en ambos tobillos. Apoyo en la pared si necesitas equilibrio.',
+        'Sube una pierna lateralmente sin inclinar el torso.',
+        'Controla la bajada — no dejes que la banda te jale.',
+        'Rodilla de apoyo ligeramente flexionada.',
+        'Completa reps de un lado y cambia.'
+      ],
+      tip: 'El glúteo medio es crítico para estabilidad de rodilla. Su fortalecimiento previene lesiones en sentadillas y carreras. No lo subestimes.'
+    },
+    {
+      name: 'Glute Kickback con Banda',
+      muscle: 'Glúteo mayor · Femoral',
+      spec: '3 × 15 cada pierna · Banda en tobillo (anclaje bajo)',
+      suggest: 'Banda verde en tobillo. Combina verde+amarilla para más resistencia',
+      sets: 3, repsHint: '15 c/pierna',
+      instructions: [
+        'Ancla la banda en la parte baja de la puerta. Pon el extremo en el tobillo.',
+        'Apóyate en la puerta o en cuatro puntos en el tapete.',
+        'Rodilla ligeramente flexionada. Empuja la pierna hacia atrás y arriba.',
+        'Contrae el glúteo en el punto más alto.',
+        'Regresa con control — no dejes que la banda te jale de golpe.'
+      ],
+      tip: 'No hiperextiendas la espalda baja al subir la pierna. El movimiento sale del glúteo, la columna permanece neutral.'
+    },
+    {
+      name: 'Puente de Glúteo Unilateral',
+      muscle: 'Glúteo mayor · Core · Estabilizadores',
+      spec: '3 × 12 cada pierna · Peso corporal',
+      suggest: 'Peso corporal — domina la forma antes de agregar peso',
+      sets: 3, repsHint: '12 c/pierna',
+      instructions: [
+        'Acuéstate boca arriba. Una rodilla flexionada, la otra pierna extendida hacia arriba.',
+        'Empuja con el talón de la pierna flexionada para elevar la cadera.',
+        'La pierna extendida permanece alineada con el torso en todo momento.',
+        'Aprieta el glúteo al máximo arriba. Mantén 1 segundo.',
+        'Baja sin tocar el suelo y repite inmediatamente.'
+      ],
+      tip: 'Más difícil de lo que parece. Si no puedes hacer 12 limpias, empieza con ambas piernas y progresa gradualmente.'
+    },
+  ]
+},
+
+combo: {
+  exercises: [
+    {
+      name: 'Push-up Declinado (pies en pared)',
+      muscle: 'Pecho superior · Hombro anterior',
+      spec: '3 × 12 · Peso corporal + pared',
+      suggest: 'Peso corporal — pies a ~50-70 cm del suelo',
+      sets: 3, repsHint: '12',
+      instructions: [
+        'Coloca los pies contra la pared a la altura de tus caderas o más arriba.',
+        'Manos en el suelo debajo de los hombros.',
+        'Cuerpo alineado. Baja hasta que la frente casi toque el suelo.',
+        'Empuja de regreso sin arquear la espalda.',
+        'Cuanto más arriba pongas los pies, más trabajas el pecho superior y hombros.'
+      ],
+      tip: 'Progresión natural hacia el handstand push-up. Sube los pies gradualmente conforme ganas fuerza.'
+    },
+    {
+      name: 'Extensión de Tríceps sobre Cabeza',
+      muscle: 'Tríceps — porción larga',
+      spec: '3 × 12 · Banda en puerta (anclaje alto) o mancuerna',
+      suggest: 'Banda azul o mancuerna ~6 kg',
+      sets: 3, repsHint: '12',
+      instructions: [
+        'Ancla la banda en la parte alta de la puerta.',
+        'Codos fijos arriba y a los lados de la cabeza.',
+        'Solo mueve el antebrazo — extiende hacia abajo.',
+        'Aprieta el tríceps en la extensión completa.',
+        'Regresa con control sin que la banda te jale.'
+      ],
+      tip: 'Porción larga del tríceps = mayor masa. Este ejercicio es el que más impacto visual tiene en el tamaño del brazo.'
+    },
+    {
+      name: 'Remo con Banda (Anclaje Medio)',
+      muscle: 'Dorsal · Romboides · Bíceps',
+      spec: '3 × 12 · Banda azul/roja en puerta',
+      suggest: 'Banda azul',
+      sets: 3, repsHint: '12',
+      instructions: [
+        'Ancla la banda a altura de cadera.',
+        'Siéntate en el suelo frente a la puerta, brazos extendidos.',
+        'Jala hacia el abdomen con los codos pegados al torso.',
+        'Aprieta omóplatos al final — 1 segundo.',
+        'Regresa lento con control.'
+      ],
+      tip: 'Sesión corta — mantén el descanso entre series en 45-60 seg para mayor densidad de trabajo.'
+    },
+    {
+      name: 'Curl de Bíceps',
+      muscle: 'Bíceps braquial',
+      spec: '3 × 10 · Mancuernas',
+      suggest: '~9 kg por mancuerna',
+      sets: 3, repsHint: '10',
+      instructions: [
+        'De pie, palmas al frente. Codos fijos a los lados.',
+        'Sube contrayendo el bíceps hasta antebrazo vertical.',
+        'Baja 2-3 segundos de forma controlada.',
+        'Extensión completa al fondo.'
+      ],
+      tip: 'En la sesión combo el volumen es menor — enfócate en la ejecución perfecta más que en el peso.'
+    },
+    {
+      name: 'Pulldown de Tríceps (Banda)',
+      muscle: 'Tríceps — porción medial y lateral',
+      spec: '3 × 15 · Banda azul en puerta (anclaje alto)',
+      suggest: 'Banda azul',
+      sets: 3, repsHint: '15',
+      instructions: [
+        'Ancla banda en la parte alta de la puerta. Codos a los lados del torso, fijos.',
+        'Jala hacia abajo extendiendo los brazos completamente.',
+        'Aprieta el tríceps al fondo — 1 segundo.',
+        'Regresa lento hasta antebrazos paralelos al suelo.'
+      ],
+      tip: 'Cierre perfecto para la semana — tríceps ya fatigado del lunes, pero este volumen ligero mantiene la frecuencia 2 sin sobrecargar.'
+    },
+    {
+      name: 'Elevación Lateral',
+      muscle: 'Deltoides medial',
+      spec: '3 × 15 · Banda amarilla o mancuerna 1-2 kg',
+      suggest: 'Banda amarilla/verde',
+      sets: 3, repsHint: '15',
+      instructions: [
+        'De pie o sentado. Codos ligeramente flexionados.',
+        'Sube los brazos lateralmente hasta la altura de los hombros.',
+        'Dorso de la mano apunta arriba al llegar al tope.',
+        'Baja 3 segundos. Sin impulso del torso.'
+      ],
+      tip: 'Sesión combo = volumen de mantenimiento. No necesitas ir al límite — solo estimular el músculo para que la semana quede completa.'
+    },
+  ]
+}
+
+}; // fin SESSIONS
+
+// ══════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════
+function getDB() { try { return JSON.parse(localStorage.getItem('tlog2') || '{}'); } catch(e) { return {}; } }
+function saveDB(d) { localStorage.setItem('tlog2', JSON.stringify(d)); }
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let weekOffset = 0;
+let activeSession = null; // { type, dateKey, dayLabel }
+
+// ══════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════
+function fmtDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function isToday(d) {
+  const t = new Date();
+  return d.getDate()===t.getDate() && d.getMonth()===t.getMonth() && d.getFullYear()===t.getFullYear();
+}
+function getWeekDates(offset) {
+  const today = new Date();
+  const dow = today.getDay();
+  const mon = new Date(today);
+  mon.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1) + offset * 7);
+  return Array.from({length:7},(_,i)=>{ const d=new Date(mon); d.setDate(mon.getDate()+i); return d; });
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════════════
+// WEEK VIEW
+// ══════════════════════════════════════════════════
+function renderWeek() {
+  const dates = getWeekDates(weekOffset);
+  const db = getDB();
+  const opts = {day:'numeric',month:'short'};
+  document.getElementById('weekRange').textContent =
+    `${dates[0].toLocaleDateString('es-MX',opts)} — ${dates[6].toLocaleDateString('es-MX',opts)}`;
+  document.getElementById('weekTitle').textContent =
+    weekOffset===0?'Esta semana':weekOffset===-1?'Semana pasada':`Semana ${weekOffset>0?'+':''}${weekOffset}`;
+
+  let sessCount=0, setsCount=0, streak=0;
+  // streak
+  const sd = new Date();
+  for(let i=0;i<60;i++){
+    const k=fmtDate(sd); const dow=sd.getDay();
+    const plan=WEEK_PLAN.find(p=>p.dow===dow);
+    if(plan?.type==='rest'){sd.setDate(sd.getDate()-1);continue;}
+    if(db[k]?.done){streak++;sd.setDate(sd.getDate()-1);}else break;
+  }
+
+  const DOW_NAMES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const DOW_FULL  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+  const list = document.getElementById('daysList');
+  list.innerHTML = '';
+
+  dates.forEach(date => {
+    const dow = date.getDay();
+    const plan = WEEK_PLAN.find(p=>p.dow===dow) || {type:'rest',title:'Descanso',sub:''};
+    const meta = TYPE_META[plan.type] || TYPE_META.rest;
+    const key = fmtDate(date);
+    const done = db[key]?.done;
+    if(done && plan.type!=='rest') sessCount++;
+    if(done) setsCount += (db[key]?.totalSets||0);
+
+    const card = document.createElement('div');
+    card.className = `day-card${plan.type==='rest'?' is-rest':''}${done?' is-done':''}${isToday(date)?' is-today':''}`;
+
+    card.innerHTML = `
+      <div class="day-stripe ${meta.stripeClass}"></div>
+      <div class="day-main">
+        <div class="day-dow">${DOW_FULL[dow]} · ${date.toLocaleDateString('es-MX',opts)}</div>
+        <div class="day-name">${plan.title}</div>
+        <div class="day-sub">${plan.sub}</div>
+      </div>
+      <div class="day-right">
+        <span class="type-pill ${meta.pillClass}">${meta.label}</span>
+        <div class="day-check">${done?'✓':''}</div>
+      </div>
+      ${isToday(date)?'<div class="today-pip"></div>':''}
+    `;
+
+    if(plan.type!=='rest'){
+      card.onclick = ()=>openSession(plan.type, key, `${DOW_FULL[dow]} ${date.toLocaleDateString('es-MX',opts)}`);
+    }
+    list.appendChild(card);
+  });
+
+  document.getElementById('sSessions').textContent = sessCount;
+  document.getElementById('sStreak').textContent = streak;
+  document.getElementById('sSets').textContent = setsCount;
+}
+
+function changeWeek(d) { weekOffset+=d; renderWeek(); }
+
+// ══════════════════════════════════════════════════
+// SESSION VIEW
+// ══════════════════════════════════════════════════
+function openSession(type, dateKey, dayLabel) {
+  const session = SESSIONS[type];
+  if(!session) return;
+  activeSession = {type, dateKey, dayLabel};
+  const db = getDB();
+  const saved = db[dateKey] || {};
+  const meta = TYPE_META[type];
+
+  const pill = document.getElementById('sPill');
+  pill.textContent = meta.label;
+  pill.className = `session-pill ${meta.pillClass}`;
+  document.getElementById('sTitle').textContent = dayLabel;
+  document.getElementById('sSub').textContent = WEEK_PLAN.find(p=>p.type===type)?.sub || '';
+
+  const isDone = saved.done;
+  const btn = document.getElementById('finishBtn');
+  btn.textContent = isDone ? '✓ Sesión completada — volver a marcar' : 'Marcar sesión completada ✓';
+  btn.className = isDone ? 'finish-btn done-state' : 'finish-btn';
+
+  const exList = document.getElementById('exList');
+  exList.innerHTML = '';
+  const color = meta.color;
+
+  session.exercises.forEach((ex, ei) => {
+    const savedEx = saved.exercises?.[ei] || {};
+    const prevRec = findPrev(type, ei, dateKey, db);
+
+    const card = document.createElement('div');
+    card.className = 'ex-card';
+    card.id = `ec${ei}`;
+
+    let setsHTML = '';
+    for(let s=0;s<ex.sets;s++){
+      const ss = savedEx.sets?.[s] || {};
+      setsHTML += `<div class="set-row">
+        <div class="set-n">${s+1}</div>
+        <input class="set-inp" type="number" inputmode="numeric" placeholder="${ex.repsHint}" value="${ss.reps||''}" oninput="saveSet(${ei},${s},'reps',this.value)">
+        <input class="set-inp" type="text" placeholder="Equipo/peso" value="${ss.weight||''}" oninput="saveSet(${ei},${s},'weight',this.value)">
+        <button class="set-ok${ss.done?' done':''}" onclick="toggleSetDone(${ei},${s},this)">✓</button>
+      </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="ex-head" onclick="toggleEx(${ei})">
+        <div class="ex-num" style="background:${color}18;color:${color}">${ei+1}</div>
+        <div class="ex-meta">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-muscle">${ex.muscle}</div>
+          <div class="ex-spec">${ex.spec}</div>
+          <div class="ex-suggest">💡 Sugerido: ${ex.suggest}</div>
+        </div>
+        <div class="ex-chevron">▼</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-how">
+          <h4>Cómo ejecutarlo</h4>
+          <ol>${ex.instructions.map(i=>`<li>${i}</li>`).join('')}</ol>
+          <div class="ex-tip">⚡ ${ex.tip}</div>
+        </div>
+        <div class="sets-log">
+          <div class="sets-log-head">
+            <h4>Registrar sets</h4>
+            ${prevRec?`<span class="prev-pr">↑ Prev: ${prevRec}</span>`:''}
+          </div>
+          <div class="col-labels"><span></span><span>Reps</span><span>Equipo</span><span>✓</span></div>
+          <div class="set-rows">${setsHTML}</div>
+        </div>
+      </div>`;
+
+    exList.appendChild(card);
+  });
+
+  showView('session');
+}
+
+function findPrev(type, ei, currentKey, db) {
+  const keys = Object.keys(db).filter(k=>k<currentKey && db[k].type===type).sort().reverse();
+  for(const k of keys){
+    const sets = db[k].exercises?.[ei]?.sets || {};
+    const done = Object.values(sets).filter(s=>s.done);
+    if(done.length) return done.map(s=>`${s.reps||'?'}r · ${s.weight||'PC'}`).join(' / ');
+  }
+  return null;
+}
+
+function toggleEx(ei) {
+  document.getElementById(`ec${ei}`).classList.toggle('open');
+}
+
+function saveSet(ei, si, field, val) {
+  if(!activeSession) return;
+  const db = getDB();
+  const k = activeSession.dateKey;
+  if(!db[k]) db[k]={type:activeSession.type,exercises:{}};
+  if(!db[k].exercises[ei]) db[k].exercises[ei]={sets:{}};
+  if(!db[k].exercises[ei].sets[si]) db[k].exercises[ei].sets[si]={};
+  db[k].exercises[ei].sets[si][field]=val;
+  saveDB(db);
+}
+
+function toggleSetDone(ei, si, btn) {
+  if(!activeSession) return;
+  const db = getDB();
+  const k = activeSession.dateKey;
+  if(!db[k]) db[k]={type:activeSession.type,exercises:{}};
+  if(!db[k].exercises[ei]) db[k].exercises[ei]={sets:{}};
+  if(!db[k].exercises[ei].sets[si]) db[k].exercises[ei].sets[si]={};
+  const cur = db[k].exercises[ei].sets[si].done;
+  db[k].exercises[ei].sets[si].done = !cur;
+  btn.classList.toggle('done');
+  saveDB(db);
+}
+
+function finishSession() {
+  if(!activeSession) return;
+  const db = getDB();
+  const k = activeSession.dateKey;
+  if(!db[k]) db[k]={};
+  db[k].done = true;
+  db[k].type = activeSession.type;
+  let total=0;
+  Object.values(db[k].exercises||{}).forEach(ex=>Object.values(ex.sets||{}).forEach(s=>{if(s.done)total++;}));
+  db[k].totalSets = total;
+  saveDB(db);
+  const btn = document.getElementById('finishBtn');
+  btn.textContent = '✓ Sesión completada — volver a marcar';
+  btn.className = 'finish-btn done-state';
+  toast('¡Sesión completada! 💪');
+  setTimeout(()=>goBack(), 1100);
+}
+
+// ══════════════════════════════════════════════════
+// HISTORY VIEW
+// ══════════════════════════════════════════════════
+function renderHistory() {
+  const db = getDB();
+  const list = document.getElementById('histList');
+  list.innerHTML = '';
+  const keys = Object.keys(db).filter(k=>db[k].done).sort().reverse();
+  if(!keys.length){
+    list.innerHTML='<div class="empty-state">Aún no hay sesiones completadas.<br>¡Empieza hoy y construye tu racha!</div>';
+    return;
+  }
+  const labels = {push:'Empuje',pull:'Jale','legs-q':'Piernas Quad','legs-f':'Piernas Femoral',combo:'Empuje + Jale'};
+  keys.forEach(k=>{
+    const d=db[k];
+    const date=new Date(k+'T12:00:00');
+    const meta=TYPE_META[d.type]||TYPE_META.rest;
+    const item=document.createElement('div');
+    item.className='hist-item';
+    item.innerHTML=`
+      <div class="hist-stripe ${meta.stripeClass}"></div>
+      <div class="hist-info">
+        <div class="hist-date">${date.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'})}</div>
+        <div class="hist-name">${labels[d.type]||d.type||'Sesión'}</div>
+        <div class="hist-sets">${d.totalSets||0} sets completados</div>
+      </div>
+      <span class="hist-badge ${meta.pillClass}">${meta.label}</span>`;
+    list.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('bnav').style.display='flex';
+  document.getElementById('backBtn').style.display='none';
+
+  if(name==='week'){
+    document.getElementById('viewWeek').classList.add('active');
+    document.getElementById('navWeek').classList.add('active');
+    renderWeek();
+  } else if(name==='session'){
+    document.getElementById('viewSession').classList.add('active');
+    document.getElementById('bnav').style.display='none';
+    document.getElementById('backBtn').style.display='flex';
+  } else if(name==='history'){
+    document.getElementById('viewHistory').classList.add('active');
+    document.getElementById('navHist').classList.add('active');
+    renderHistory();
+  }
+}
+
+function goBack() { showView('week'); }
+
+// INIT
+renderWeek();
+</script>
+</body>
+</html>
