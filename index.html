@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Log</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+  :root {
+    --bg: #0d0f12;
+    --surface: #13161b;
+    --surface2: #1a1e26;
+    --border: #252a35;
+    --text: #e8eaf0;
+    --muted: #5a6278;
+    --push: #f97316;
+    --pull: #3b82f6;
+    --legs-q: #a855f7;
+    --legs-f: #10b981;
+    --rest: #374151;
+    --success: #22c55e;
+    --warning: #eab308;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,15,18,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .header span { color: var(--push); }
+  .back-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+  }
+  .back-btn:hover { background: var(--border); }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── WEEK VIEW ── */
+  .week-header {
+    padding: 24px 20px 12px;
+  }
+  .week-header p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .week-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .week-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px 16px;
+  }
+  .week-nav button {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .week-nav button:hover { background: var(--border); }
+  .week-range { color: var(--muted); font-size: 13px; flex: 1; }
+
+  .days-grid {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .day-card:hover { border-color: #3a4055; transform: translateY(-1px); }
+  .day-card.done { border-color: #1e3a2a; background: #0f1f17; }
+  .day-card.rest-day { opacity: 0.6; cursor: default; }
+  .day-card.rest-day:hover { transform: none; border-color: var(--border); }
+  .day-card.today { border-color: #2a3050; }
+
+  .day-accent {
+    width: 4px;
+    align-self: stretch;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .push-color { background: var(--push); }
+  .pull-color { background: var(--pull); }
+  .legs-q-color { background: var(--legs-q); }
+  .legs-f-color { background: var(--legs-f); }
+  .rest-color { background: var(--rest); }
+
+  .day-info { flex: 1; }
+  .day-name {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .day-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .day-meta {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .day-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-push { background: rgba(249,115,22,0.15); color: var(--push); }
+  .badge-pull { background: rgba(59,130,246,0.15); color: var(--pull); }
+  .badge-legs-q { background: rgba(168,85,247,0.15); color: var(--legs-q); }
+  .badge-legs-f { background: rgba(16,185,129,0.15); color: var(--legs-f); }
+  .badge-rest { background: rgba(55,65,81,0.3); color: var(--muted); }
+
+  .day-check {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    color: transparent;
+  }
+  .day-card.done .day-check {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .today-dot {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--push);
+    box-shadow: 0 0 8px var(--push);
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    margin: 20px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--push);
+  }
+  .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.6px; }
+
+  /* ── SESSION VIEW ── */
+  .session-header {
+    padding: 20px 20px 12px;
+  }
+  .session-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .session-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .session-desc {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .exercises-list {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 100px;
+  }
+
+  /* ── EXERCISE CARD ── */
+  .ex-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .ex-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .ex-num {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .ex-info { flex: 1; }
+  .ex-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .ex-target {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .ex-specs {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .ex-expand {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 4px;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .ex-card.open .ex-expand { transform: rotate(180deg); }
+
+  .ex-body {
+    display: none;
+    border-top: 1px solid var(--border);
+  }
+  .ex-card.open .ex-body { display: block; }
+
+  .ex-instructions {
+    padding: 14px 16px;
+    background: var(--surface2);
+  }
+  .ex-instructions h4 {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .ex-instructions ol {
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ex-instructions li {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #b0b8cc;
+  }
+  .ex-tip {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: rgba(249,115,22,0.08);
+    border-left: 3px solid var(--push);
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    color: #c0c8d8;
+    line-height: 1.4;
+  }
+
+  /* ── SETS LOG ── */
+  .sets-log {
+    padding: 12px 16px 16px;
+  }
+  .sets-log h4 {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .sets-table {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .set-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 1fr 44px;
+    gap: 8px;
+    align-items: center;
+  }
+  .set-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+  }
+  .set-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .set-input:focus {
+    outline: none;
+    border-color: var(--push);
+  }
+  .set-input::placeholder { color: var(--muted); }
+  .set-done-btn {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .set-done-btn.checked {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+  .sets-col-header {
+    display: grid;
+    grid-template-columns: 32px 1fr 1fr 44px;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .sets-col-header span {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .prev-record {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .prev-record .pr-val { color: var(--success); font-weight: 600; }
+
+  /* ── COMPLETE SESSION BTN ── */
+  .session-footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 16px 20px;
+    background: rgba(13,15,18,0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+  }
+  .complete-btn {
+    width: 100%;
+    background: var(--push);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .complete-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .complete-btn:active { transform: translateY(0); }
+
+  /* ── PROGRESS BADGE ── */
+  .pr-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(234,179,8,0.15);
+    color: var(--warning);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--success);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 200;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── HISTORY VIEW ── */
+  .history-section { padding: 20px 20px 12px; }
+  .history-section h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .history-section p { color: var(--muted); font-size: 13px; }
+
+  .history-list {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 30px;
+  }
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .history-date { font-size: 11px; color: var(--muted); }
+  .history-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .history-sets { font-size: 12px; color: var(--muted); }
+
+  /* ── NAV ── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(19,22,27,0.97);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 12px;
+  }
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 6px 0;
+    font-size: 10px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    transition: color 0.15s;
+  }
+  .nav-btn .icon { font-size: 18px; }
+  .nav-btn.active { color: var(--push); }
+
+  .main-content { padding-bottom: 72px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Training<span>.</span>Log</h1>
+  <button class="back-btn" id="backBtn" onclick="goBack()">← Volver</button>
+</div>
+
+<!-- WEEK VIEW -->
+<div class="view active main-content" id="viewWeek">
+  <div class="week-header">
+    <div class="week-label" id="weekLabel">Esta semana</div>
+    <p>Selecciona un día para registrar tu sesión</p>
+  </div>
+  <div class="week-nav">
+    <button onclick="changeWeek(-1)">‹</button>
+    <span class="week-range" id="weekRange"></span>
+    <button onclick="changeWeek(1)">›</button>
+  </div>
+  <div class="stats-bar">
+    <div>
+      <div class="stat-val" id="statSessions">0</div>
+      <div class="stat-lbl">Sesiones</div>
+    </div>
+    <div>
+      <div class="stat-val" id="statStreak">0</div>
+      <div class="stat-lbl">Racha días</div>
+    </div>
+    <div>
+      <div class="stat-val" id="statTotal">0</div>
+      <div class="stat-lbl">Total sets</div>
+    </div>
+  </div>
+  <div class="days-grid" id="daysGrid"></div>
+</div>
+
+<!-- SESSION VIEW -->
+<div class="view main-content" id="viewSession">
+  <div class="session-header">
+    <div class="session-type-badge" id="sessionBadge"></div>
+    <div class="session-title" id="sessionTitle"></div>
+    <div class="session-desc" id="sessionDesc"></div>
+  </div>
+  <div class="exercises-list" id="exercisesList"></div>
+  <div class="session-footer">
+    <button class="complete-btn" id="completeBtn" onclick="completeSession()">Marcar sesión como completada ✓</button>
+  </div>
+</div>
+
+<!-- HISTORY VIEW -->
+<div class="view main-content" id="viewHistory">
+  <div class="history-section">
+    <h2>Historial</h2>
+    <p>Tus sesiones completadas</p>
+  </div>
+  <div class="history-list" id="historyList"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottomNav">
+  <button class="nav-btn active" id="navWeek" onclick="showView('week')">
+    <span class="icon">📅</span>Semana
+  </button>
+  <button class="nav-btn" id="navHistory" onclick="showView('history')">
+    <span class="icon">📊</span>Historial
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA — PLAN SEMANAL
+// ══════════════════════════════════════════
+
+const WEEK_PLAN = [
+  // 0=Dom, 1=Lun, 2=Mar, 3=Mie, 4=Jue, 5=Vie, 6=Sab
+  { dow: 0, type: 'rest',   label: 'Domingo',   title: 'Descanso', desc: 'Recuperación activa. Camina, estira, hidratate.', color: 'rest' },
+  { dow: 1, type: 'rest',   label: 'Lunes',     title: 'Descanso', desc: 'Recuperación activa. Camina, estira, hidratate.', color: 'rest' },
+  { dow: 2, type: 'push',   label: 'Martes',    title: 'Empuje', desc: 'Pecho · Hombros · Tríceps', color: 'push' },
+  { dow: 3, type: 'pull',   label: 'Miércoles', title: 'Jale', desc: 'Espalda · Bíceps', color: 'pull' },
+  { dow: 4, type: 'legs-f', label: 'Jueves',    title: 'Piernas — Femoral/Glúteo', desc: 'Femorales · Glúteos · Abductores', color: 'legs-f' },
+  { dow: 5, type: 'push',   label: 'Viernes',   title: 'Empuje', desc: 'Pecho · Hombros · Tríceps', color: 'push' },
+  { dow: 6, type: 'pull',   label: 'Sábado',    title: 'Jale', desc: 'Espalda · Bíceps', color: 'pull' },
+];
+
+// Extra legs day fits Sun of next cycle — we handle by session type
+const SESSIONS = {
+  push: {
+    type: 'push',
+    badge: '🔴 Empuje',
+    badgeClass: 'badge-push',
+    color: 'push-color',
+    title: 'Empuje',
+    desc: 'Pecho, hombros y tríceps. Patrones de presión.',
+    exercises: [
+      {
+        name: 'Push-up Manos Anchas',
+        target: 'Pecho mayor · Hombro anterior · Tríceps',
+        specs: '4 × Máx reps · Peso corporal',
+        sets: 4, repsTarget: 'Máx', equipment: 'Peso corporal',
+        instructions: [
+          'Coloca las manos ligeramente más anchas que los hombros, dedos apuntando al frente o ligeramente hacia afuera.',
+          'Cuerpo rígido de cabeza a talones — activa el abdomen y aprieta los glúteos.',
+          'Baja el pecho hasta ~2 cm del suelo, codos a 45° respecto al torso (no hacia afuera).',
+          'Empuja hasta extender completamente los codos sin bloquearlos.',
+          'Inhala al bajar, exhala al subir.'
+        ],
+        tip: 'Si llegas a 20+ reps cómodamente, agrega una banda elástica cruzada en la espalda para resistencia extra.'
+      },
+      {
+        name: 'Push-up Declinado (pies en pared)',
+        target: 'Pecho superior · Hombro anterior',
+        specs: '3 × 12 · Peso corporal',
+        sets: 3, repsTarget: 12, equipment: 'Peso corporal + pared',
+        instructions: [
+          'Coloca los pies contra la pared a la altura de tus caderas o más arriba según tu nivel.',
+          'Manos en el suelo debajo de los hombros. Cuanto más alto pongas los pies, más trabajas el pecho superior.',
+          'Mantén el cuerpo alineado, baja hasta que la frente casi toque el suelo.',
+          'Empuja de regreso sin arquear la espalda.'
+        ],
+        tip: 'Empieza con pies a 50 cm del piso. A medida que mejores, sube más la posición.'
+      },
+      {
+        name: 'Press de Hombro en Piso',
+        target: 'Deltoides medial y anterior · Tríceps',
+        specs: '4 × 10-12 · Mancuernas',
+        sets: 4, repsTarget: '10-12', equipment: 'Mancuernas',
+        instructions: [
+          'Siéntate en el tapete con piernas cruzadas o extendidas. Espalda erguida.',
+          'Toma una mancuerna en cada mano a la altura de los hombros, palmas hacia el frente.',
+          'Presiona hacia arriba hasta casi extender los codos, sin bloquearlos.',
+          'Baja con control — no dejes caer el peso.',
+          'Mantén el abdomen contraído para no arquearte.'
+        ],
+        tip: 'Empieza con ~5 kg por mancuerna. Si puedes hacer 12 con facilidad, sube disco.'
+      },
+      {
+        name: 'Elevación Lateral',
+        target: 'Deltoides medial',
+        specs: '3 × 15 · Banda amarilla o mancuerna 1 kg',
+        sets: 3, repsTarget: 15, equipment: 'Banda amarilla / mancuerna 1 kg',
+        instructions: [
+          'De pie o sentado. Brazos a los lados con una ligera flexión en el codo (~15°), nunca recto.',
+          'Sube los brazos lateralmente hasta la altura de los hombros — no más arriba.',
+          'El dorso de la mano debe apuntar arriba al llegar arriba (como si vaciaras una jarra).',
+          'Baja con 3 segundos de control — el negativo es donde más crece el músculo.',
+          'No uses impulso del torso.'
+        ],
+        tip: 'Este músculo responde más al volumen que al peso. Más lento y más reps siempre gana.'
+      },
+      {
+        name: 'Diamond Push-up (Tríceps)',
+        target: 'Tríceps · Pecho interior',
+        specs: '3 × 12 · Peso corporal',
+        sets: 3, repsTarget: 12, equipment: 'Peso corporal',
+        instructions: [
+          'Manos juntas en el suelo formando un rombo con los pulgares e índices.',
+          'Colócalas debajo del pecho, no del cuello.',
+          'Baja manteniendo los codos cerca del cuerpo — no los abras hacia los lados.',
+          'Empuja hasta extender completamente.',
+          'Si es muy difícil, bájate a rodillas para reducir el peso.'
+        ],
+        tip: 'Sientes un ardor intenso en el tríceps lateral. Eso es bueno. Aguanta el último rep.'
+      },
+      {
+        name: 'Extensión de Tríceps sobre Cabeza',
+        target: 'Tríceps (porción larga)',
+        specs: '3 × 15 · Banda en puerta (anclaje alto)',
+        sets: 3, repsTarget: 15, equipment: 'Banda en puerta (anclaje alto)',
+        instructions: [
+          'Ancla la banda en la parte alta de la puerta. Toma los extremos con ambas manos.',
+          'Da un paso hacia adelante para crear tensión. Inclínate ligeramente hacia adelante.',
+          'Codos fijos arriba y a los lados de la cabeza. Solo mueve el antebrazo.',
+          'Extiende hacia abajo hasta que los brazos queden rectos.',
+          'Regresa con control — no dejes que la banda te jale de golpe.'
+        ],
+        tip: 'La porción larga del tríceps solo se activa completamente con el brazo elevado. Este ejercicio es invaluable.'
+      },
+    ]
+  },
+  pull: {
+    type: 'pull',
+    badge: '🔵 Jale',
+    badgeClass: 'badge-pull',
+    color: 'pull-color',
+    title: 'Jale',
+    desc: 'Espalda y bíceps. Patrones de tracción.',
+    exercises: [
+      {
+        name: 'Remo con Banda (Anclaje Medio)',
+        target: 'Dorsal · Romboides · Trapecio medio · Bíceps',
+        specs: '4 × 12 · Banda azul o roja',
+        sets: 4, repsTarget: 12, equipment: 'Banda azul/roja en puerta',
+        instructions: [
+          'Ancla la banda en la perilla o bisagra media de la puerta.',
+          'Siéntate en el suelo frente a la puerta, piernas extendidas o ligeramente flexionadas.',
+          'Toma la banda con ambas manos, brazos extendidos al frente.',
+          'Jala hacia tu abdomen apretando los codos contra el cuerpo.',
+          'Aprieta los omóplatos al final del movimiento — mantenlos 1 segundo.',
+          'Regresa lento. No te impulses con la espalda baja.'
+        ],
+        tip: 'Piensa en "meter el codo al bolsillo trasero del pantalón". Eso activa el dorsal correctamente.'
+      },
+      {
+        name: 'Pullover en Piso',
+        target: 'Dorsal · Pecho · Serrato anterior',
+        specs: '3 × 12 · Mancuerna',
+        sets: 3, repsTarget: 12, equipment: 'Mancuerna (la más pesada disponible)',
+        instructions: [
+          'Acuéstate boca arriba en el tapete, rodillas flexionadas.',
+          'Toma una mancuerna vertical con ambas manos (agarra el disco superior).',
+          'Extiende los brazos sobre el pecho, luego bájalos hacia atrás sobre la cabeza manteniendo codos ligeramente flexionados.',
+          'Lleva la mancuerna hasta donde sientas un estiramiento en el dorsal.',
+          'Regresa con control al punto de inicio.'
+        ],
+        tip: 'No uses el hombro para "tirar" — el movimiento sale del dorsal. Si sientes los hombros, reduce el rango.'
+      },
+      {
+        name: 'Curl de Bíceps',
+        target: 'Bíceps braquial · Braquial',
+        specs: '4 × 12 · Banda verde o mancuernas',
+        sets: 4, repsTarget: 12, equipment: 'Banda verde / mancuernas',
+        instructions: [
+          'De pie, pisa la banda con ambos pies (o toma mancuernas). Palmas hacia el frente.',
+          'Codos fijos a los lados del torso — no los muevas durante el ejercicio.',
+          'Sube contrayendo el bíceps hasta que el antebrazo esté vertical.',
+          'Baja con 2-3 segundos de control completo.',
+          'Al fondo, extiende completamente para el rango completo.'
+        ],
+        tip: 'El error más común es mover los codos hacia adelante. Si lo haces, estás usando el hombro, no el bíceps.'
+      },
+      {
+        name: 'Curl Martillo',
+        target: 'Braquial · Braquiorradial · Bíceps',
+        specs: '3 × 10 · Mancuernas',
+        sets: 3, repsTarget: 10, equipment: 'Mancuernas',
+        instructions: [
+          'Toma las mancuernas con palmas enfrentadas (agarre neutro) — como si sostuvieras martillos.',
+          'Codos fijos a los lados.',
+          'Sube alternando brazos o juntos.',
+          'No gires la muñeca — mantén el agarre neutro todo el tiempo.',
+          'Baja con control.'
+        ],
+        tip: 'El curl martillo construye el braquial debajo del bíceps, lo que hace que el brazo se vea más voluminoso aunque el bíceps no haya crecido.'
+      },
+      {
+        name: 'Remo en T con Banda (Anclaje Bajo)',
+        target: 'Dorsal · Trapecio · Romboides',
+        specs: '3 × 12 · Banda roja',
+        sets: 3, repsTarget: 12, equipment: 'Banda roja en puerta (anclaje bajo)',
+        instructions: [
+          'Ancla la banda en la parte baja de la puerta.',
+          'Inclínate hacia adelante con la espalda casi paralela al suelo (45° como mínimo).',
+          'Toma la banda con ambas manos, brazos extendidos.',
+          'Jala hacia tu abdomen abriendo los codos hacia los lados (como alas).',
+          'Aprieta los omóplatos fuerte al final.'
+        ],
+        tip: 'Diferencia vs el remo normal: aquí los codos van hacia afuera, trabaja más trapecio y romboides.'
+      },
+      {
+        name: 'Curl Concentrado',
+        target: 'Bíceps (pico)',
+        specs: '3 × 10 cada brazo · Mancuerna',
+        sets: 3, repsTarget: '10 c/brazo', equipment: 'Mancuerna',
+        instructions: [
+          'Siéntate en el tapete con las piernas abiertas.',
+          'Apoya el codo derecho en la cara interna del muslo derecho.',
+          'Baja la mancuerna completamente, luego sube hasta que el bíceps esté totalmente contraído.',
+          'Supina (gira) la muñeca al subir para mayor contracción.',
+          'Cambia de brazo.'
+        ],
+        tip: 'El pico del bíceps se trabaja mejor con aislamiento. Concéntrate en la contracción final — mantenla 1 segundo.'
+      }
+    ]
+  },
+  'legs-q': {
+    type: 'legs-q',
+    badge: '🟣 Piernas Q',
+    badgeClass: 'badge-legs-q',
+    color: 'legs-q-color',
+    title: 'Piernas — Quad',
+    desc: 'Cuádriceps, pantorrilla y core. Patrón dominante de rodilla.',
+    exercises: [
+      {
+        name: 'Sentadilla con Banda',
+        target: 'Cuádriceps · Glúteo · Femoral · Core',
+        specs: '4 × 15 · Banda azul/roja sobre hombros',
+        sets: 4, repsTarget: 15, equipment: 'Banda azul o roja',
+        instructions: [
+          'Pisa la banda con los pies al ancho de hombros. Pasa la banda sobre los hombros (parte alta del trapecio).',
+          'Punta de pies ligeramente hacia afuera (~30°).',
+          'Desciende con la espalda recta como si fueras a sentarte en una silla detrás de ti.',
+          'Rodillas en la dirección de los pies — no dejes que colapsen hacia adentro.',
+          'Baja hasta que los muslos queden paralelos al suelo o más abajo si puedes.',
+          'Sube empujando con los talones.'
+        ],
+        tip: 'La profundidad importa más que el peso. Sentadilla al paralelo activa glúteo 40% más que media sentadilla.'
+      },
+      {
+        name: 'Zancada Estacionaria (Lunge)',
+        target: 'Cuádriceps · Glúteo · Estabilizadores',
+        specs: '4 × 12 cada pierna · Mancuernas',
+        sets: 4, repsTarget: '12 c/pierna', equipment: 'Mancuernas',
+        instructions: [
+          'Da un paso largo hacia adelante. La rodilla trasera mira al suelo.',
+          'Baja hasta que la rodilla trasera casi toque el suelo. Rodilla delantera no pasa el tobillo.',
+          'El torso permanece erguido — no te inclines hacia adelante.',
+          'Empuja con el talón delantero para regresar.',
+          'Completa las reps de una pierna antes de cambiar, o alterna.'
+        ],
+        tip: 'Cuanto más largo el paso, más glúteo. Cuanto más corto, más cuádriceps. Juega con esto.'
+      },
+      {
+        name: 'Sentadilla Sumo',
+        target: 'Aductores · Glúteo · Cuádriceps interno',
+        specs: '3 × 15 · Mancuerna central',
+        sets: 3, repsTarget: 15, equipment: 'Mancuerna (una, sostenida al centro)',
+        instructions: [
+          'Pies más anchos que el ancho de hombros, puntas bien abiertas hacia afuera (~45°).',
+          'Sostén una mancuerna vertical con ambas manos frente a tu cuerpo.',
+          'Baja manteniendo la espalda recta y el pecho arriba.',
+          'Las rodillas siguen la dirección de los pies.',
+          'Sube apretando los aductores y el glúteo en la parte alta.'
+        ],
+        tip: 'Siente el estiramiento en la cara interna del muslo. Si no lo sientes, abre más los pies.'
+      },
+      {
+        name: 'Extensión de Rodilla en Piso',
+        target: 'Cuádriceps (aislamiento)',
+        specs: '3 × 15 cada pierna · Polaina 5 lb',
+        sets: 3, repsTarget: '15 c/pierna', equipment: 'Polaina 5 lb',
+        instructions: [
+          'Siéntate en el tapete con la espalda apoyada en la pared o totalmente sentado.',
+          'Pon la polaina en el tobillo. Pierna ligeramente flexionada en punto inicial.',
+          'Extiende la pierna hasta casi bloquear la rodilla. Contrae el cuádriceps arriba.',
+          'Baja con control — no dejes caer.',
+          'Mantén 1 segundo arriba en cada repetición.'
+        ],
+        tip: 'Aislamiento puro de cuádriceps. Ideal para cerrar el día de piernas cuando ya estás fatigado.'
+      },
+      {
+        name: 'Elevación de Pantorrilla Unilateral',
+        target: 'Gastrocnemio · Soleo',
+        specs: '4 × 20 cada pierna · Peso corporal',
+        sets: 4, repsTarget: '20 c/pierna', equipment: 'Peso corporal (apoyo en pared)',
+        instructions: [
+          'De pie con una mano apoyada en la pared para equilibrio.',
+          'Levanta un pie. Sube en la punta del pie que queda en el suelo.',
+          'Sube lo más alto posible contrayendo la pantorrilla arriba.',
+          'Baja completamente hasta que el talón toque el suelo — rango completo.',
+          'No rebotes. Controlado todo el tiempo.'
+        ],
+        tip: 'La pantorrilla es resistente. Si 20 reps se sienten fáciles, hazlo en un escalón o agrega mancuerna.'
+      }
+    ]
+  },
+  'legs-f': {
+    type: 'legs-f',
+    badge: '🟢 Piernas F',
+    badgeClass: 'badge-legs-f',
+    color: 'legs-f-color',
+    title: 'Piernas — Femoral/Glúteo',
+    desc: 'Femorales, glúteos y abductores. Patrón dominante de cadera.',
+    exercises: [
+      {
+        name: 'Hip Thrust en Piso',
+        target: 'Glúteo mayor · Femoral',
+        specs: '4 × 15 · Banda sobre cadera',
+        sets: 4, repsTarget: 15, equipment: 'Banda azul/roja anclada en puerta (o libre)',
+        instructions: [
+          'Acuéstate boca arriba, rodillas flexionadas, pies planos en el suelo al ancho de cadera.',
+          'Pon la banda sobre las caderas (anclada o sostenida con las manos para resistencia).',
+          'Empuja la cadera hacia arriba contrayendo el glúteo hasta que el cuerpo forme una línea recta de rodillas a hombros.',
+          'Aprieta el glúteo máximo arriba y mantén 1-2 segundos.',
+          'Baja sin que la cadera toque el suelo — mantén tensión todo el tiempo.'
+        ],
+        tip: 'El error más común: arquear la espalda baja en vez de contraer el glúteo. Que el movimiento salga de la cadera, no de la espalda.'
+      },
+      {
+        name: 'Romanian Deadlift (RDL)',
+        target: 'Femoral · Glúteo · Espalda baja',
+        specs: '4 × 12 · Mancuernas cargadas',
+        sets: 4, repsTarget: 12, equipment: 'Mancuernas (cargadas)',
+        instructions: [
+          'De pie, mancuernas frente a ti con agarre neutral o prono.',
+          'Con las rodillas ligeramente flexionadas y fijas, inclínate hacia adelante empujando la cadera hacia atrás.',
+          'Baja las mancuernas por las piernas (cerca del cuerpo) hasta sentir un estiramiento fuerte en el femoral.',
+          'La espalda permanece neutral todo el tiempo — no redondees.',
+          'Sube empujando la cadera hacia adelante para volver a la posición inicial.'
+        ],
+        tip: 'La clave es empujar la cadera hacia ATRÁS al bajar, no solo doblarse. Si no sientes el femoral estirarse, algo está mal.'
+      },
+      {
+        name: 'Curl de Femoral en Piso',
+        target: 'Femoral (aislamiento)',
+        specs: '3 × 15 cada pierna · Polaina 5 lb',
+        sets: 3, repsTarget: '15 c/pierna', equipment: 'Polaina 5 lb',
+        instructions: [
+          'Acuéstate boca abajo en el tapete. Pon la polaina en el tobillo.',
+          'Mantén la cadera presionada contra el suelo.',
+          'Flexiona la rodilla llevando el talón hacia el glúteo.',
+          'Baja con control total — 3 segundos.',
+          'No rebotes en la posición inicial.'
+        ],
+        tip: 'Si quieres hacerlo más difícil, contrae el glúteo del mismo lado al mismo tiempo. Activa más fibras.'
+      },
+      {
+        name: 'Abducción de Cadera Lateral',
+        target: 'Glúteo medio · Glúteo menor · TFL',
+        specs: '3 × 20 · Banda amarilla en tobillos',
+        sets: 3, repsTarget: 20, equipment: 'Banda amarilla en tobillos',
+        instructions: [
+          'De pie con la banda en ambos tobillos. Agárrate a la pared si necesitas equilibrio.',
+          'Sube una pierna lateralmente sin inclinar el torso.',
+          'Controla la bajada — no dejes que la banda te jale.',
+          'Mantén ligeramente flexionada la rodilla de apoyo.',
+          'Completa reps de un lado y cambia.'
+        ],
+        tip: 'El glúteo medio es crítico para estabilidad de rodilla y prevención de lesiones. No lo subestimes aunque se sienta fácil.'
+      },
+      {
+        name: 'Glute Kickback con Banda',
+        target: 'Glúteo mayor · Femoral',
+        specs: '3 × 15 cada pierna · Banda en tobillo (anclaje bajo)',
+        sets: 3, repsTarget: '15 c/pierna', equipment: 'Banda en puerta (anclaje bajo)',
+        instructions: [
+          'Ancla la banda en la parte baja de la puerta. Pon el extremo en el tobillo.',
+          'Apóyate en la puerta o en tus manos y rodillas en el tapete.',
+          'Mantén la rodilla ligeramente flexionada y empuja la pierna hacia atrás y arriba.',
+          'Contrae el glúteo al final del movimiento.',
+          'Regresa con control sin dejar que la banda te jale de golpe.'
+        ],
+        tip: 'No hiperextiendas la espalda baja al subir la pierna. El movimiento sale del glúteo, no de la columna.'
+      },
+      {
+        name: 'Puente de Glúteo Unilateral',
+        target: 'Glúteo mayor · Core',
+        specs: '3 × 12 cada pierna · Peso corporal',
+        sets: 3, repsTarget: '12 c/pierna', equipment: 'Peso corporal',
+        instructions: [
+          'Acuéstate boca arriba, una rodilla flexionada y la otra pierna extendida hacia arriba.',
+          'Empuja con el talón de la pierna flexionada para elevar la cadera.',
+          'La pierna extendida permanece alineada con el torso.',
+          'Aprieta el glúteo al máximo arriba. Mantén 1 segundo.',
+          'Baja sin tocar el suelo y repite.'
+        ],
+        tip: 'Más difícil de lo que parece. Si no puedes hacer 12, empieza con ambas piernas y ve progresando.'
+      }
+    ]
+  }
+};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let currentWeekOffset = 0;
+let currentSessionData = null;
+let currentDayKey = null;
+
+function getStorage() {
+  try { return JSON.parse(localStorage.getItem('trainingLog') || '{}'); } catch(e) { return {}; }
+}
+function saveStorage(data) {
+  localStorage.setItem('trainingLog', JSON.stringify(data));
+}
+
+function getWeekDates(offset = 0) {
+  const today = new Date();
+  const day = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - day + (day === 0 ? -6 : 1) + offset * 7);
+  return Array.from({length: 7}, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+function formatDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function isToday(d) {
+  const t = new Date();
+  return d.getDate() === t.getDate() && d.getMonth() === t.getMonth() && d.getFullYear() === t.getFullYear();
+}
+
+// ══════════════════════════════════════════
+// WEEK VIEW
+// ══════════════════════════════════════════
+function renderWeek() {
+  const dates = getWeekDates(currentWeekOffset);
+  const storage = getStorage();
+
+  // Week range label
+  const opts = { day: 'numeric', month: 'short' };
+  document.getElementById('weekRange').textContent =
+    `${dates[0].toLocaleDateString('es-MX', opts)} — ${dates[6].toLocaleDateString('es-MX', opts)}`;
+
+  const today = new Date();
+  const isCurrentWeek = currentWeekOffset === 0;
+  document.getElementById('weekLabel').textContent = isCurrentWeek ? 'Esta semana' :
+    currentWeekOffset === -1 ? 'Semana pasada' : `Semana ${currentWeekOffset > 0 ? '+' : ''}${currentWeekOffset}`;
+
+  // Days of week: Mon=0...Sun=6 in our array (we show Mon-Sun)
+  const dowMap = [1,2,3,4,5,6,0]; // Mon=1,Tue=2,...,Sun=0
+  const grid = document.getElementById('daysGrid');
+  grid.innerHTML = '';
+
+  let sessionsThisWeek = 0, totalSets = 0;
+
+  dates.forEach((date, i) => {
+    const dow = date.getDay();
+    const plan = WEEK_PLAN.find(p => p.dow === dow);
+    const dateKey = formatDate(date);
+    const sessionDone = storage[dateKey]?.done;
+    if (sessionDone && plan?.type !== 'rest') sessionsThisWeek++;
+    if (sessionDone) totalSets += (storage[dateKey]?.totalSets || 0);
+
+    const card = document.createElement('div');
+    card.className = `day-card${plan?.type === 'rest' ? ' rest-day' : ''}${sessionDone ? ' done' : ''}${isToday(date) ? ' today' : ''}`;
+
+    const colorClass = plan?.color ? plan.color + '-color' : 'rest-color';
+    const badgeClass = plan?.type === 'push' ? 'badge-push' : plan?.type === 'pull' ? 'badge-pull' : plan?.type === 'legs-q' ? 'badge-legs-q' : plan?.type === 'legs-f' ? 'badge-legs-f' : 'badge-rest';
+    const badgeLabel = plan?.type === 'push' ? 'Empuje' : plan?.type === 'pull' ? 'Jale' : plan?.type === 'legs-q' ? 'Piernas Q' : plan?.type === 'legs-f' ? 'Piernas F' : 'Descanso';
+
+    const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    const dayFull = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const dateStr = date.toLocaleDateString('es-MX', {day:'numeric', month:'short'});
+
+    card.innerHTML = `
+      <div class="day-accent ${colorClass}"></div>
+      <div class="day-info">
+        <div class="day-name">${dayFull[dow]} · ${dateStr}</div>
+        <div class="day-title">${plan?.title || 'Descanso'}</div>
+        <div class="day-meta"><span class="day-badge ${badgeClass}">${badgeLabel}</span></div>
+      </div>
+      <div class="day-check">${sessionDone ? '✓' : ''}</div>
+      ${isToday(date) ? '<div class="today-dot"></div>' : ''}
+    `;
+
+    if (plan?.type && plan.type !== 'rest') {
+      card.onclick = () => openSession(plan.type, dateKey, dayFull[dow], dateStr);
+    }
+
+    grid.appendChild(card);
+  });
+
+  // Stats
+  document.getElementById('statSessions').textContent = sessionsThisWeek;
+  document.getElementById('statTotal').textContent = totalSets;
+
+  // Streak
+  let streak = 0;
+  const checkDate = new Date();
+  while(true) {
+    const key = formatDate(checkDate);
+    const dow = checkDate.getDay();
+    const plan = WEEK_PLAN.find(p => p.dow === dow);
+    if (plan?.type === 'rest') { checkDate.setDate(checkDate.getDate()-1); continue; }
+    if (storage[key]?.done) { streak++; checkDate.setDate(checkDate.getDate()-1); }
+    else break;
+    if (streak > 60) break;
+  }
+  document.getElementById('statStreak').textContent = streak;
+}
+
+function changeWeek(dir) {
+  currentWeekOffset += dir;
+  renderWeek();
+}
+
+// ══════════════════════════════════════════
+// SESSION VIEW
+// ══════════════════════════════════════════
+function openSession(type, dateKey, dayName, dateStr) {
+  const session = SESSIONS[type];
+  if (!session) return;
+
+  currentSessionData = session;
+  currentDayKey = dateKey;
+
+  const storage = getStorage();
+  const saved = storage[dateKey] || {};
+
+  // Badge
+  const badge = document.getElementById('sessionBadge');
+  badge.textContent = session.badge;
+  badge.className = `session-type-badge ${session.badgeClass}`;
+
+  document.getElementById('sessionTitle').textContent = `${dayName} · ${dateStr}`;
+  document.getElementById('sessionDesc').textContent = session.desc;
+
+  // Render exercises
+  const list = document.getElementById('exercisesList');
+  list.innerHTML = '';
+
+  const typeColors = { push: 'var(--push)', pull: 'var(--pull)', 'legs-q': 'var(--legs-q)', 'legs-f': 'var(--legs-f)' };
+  const color = typeColors[type] || 'var(--push)';
+
+  session.exercises.forEach((ex, ei) => {
+    const savedEx = saved.exercises?.[ei] || {};
+    const card = document.createElement('div');
+    card.className = 'ex-card';
+    card.id = `ex-${ei}`;
+
+    // Find previous record
+    let prevRecord = findPrevRecord(type, ei, dateKey);
+
+    let setsHTML = '';
+    for (let s = 0; s < ex.sets; s++) {
+      const savedSet = savedEx.sets?.[s] || {};
+      setsHTML += `
+        <div class="set-row">
+          <div class="set-num">${s+1}</div>
+          <input class="set-input" type="number" placeholder="${ex.repsTarget}" step="1" min="0"
+            value="${savedSet.reps || ''}" oninput="saveSet(${ei},${s},'reps',this.value)" inputmode="numeric">
+          <input class="set-input" type="text" placeholder="Equipo/peso"
+            value="${savedSet.weight || ''}" oninput="saveSet(${ei},${s},'weight',this.value)">
+          <button class="set-done-btn ${savedSet.done ? 'checked' : ''}" onclick="toggleSet(${ei},${s},this)">✓</button>
+        </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="ex-header" onclick="toggleEx(${ei})">
+        <div class="ex-num" style="background:${color}20;color:${color}">${ei+1}</div>
+        <div class="ex-info">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-target">${ex.target}</div>
+          <div class="ex-specs">${ex.specs}</div>
+        </div>
+        <div class="ex-expand">▼</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-instructions">
+          <h4>Cómo ejecutarlo</h4>
+          <ol>${ex.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
+          <div class="ex-tip">💡 ${ex.tip}</div>
+        </div>
+        <div class="sets-log">
+          <h4>Registrar sets${prevRecord ? `<span class="pr-badge">⬆ Marca previa</span>` : ''}</h4>
+          ${prevRecord ? `<div class="prev-record">Último: <span class="pr-val">${prevRecord}</span></div>` : ''}
+          <div class="sets-col-header">
+            <span></span><span>Reps</span><span>Equipo</span><span>✓</span>
+          </div>
+          <div class="sets-table">${setsHTML}</div>
+        </div>
+      </div>`;
+
+    list.appendChild(card);
+  });
+
+  document.getElementById('completeBtn').textContent =
+    saved.done ? '✓ Sesión completada (volver a marcar)' : 'Marcar sesión como completada ✓';
+
+  showView('session');
+}
+
+function findPrevRecord(type, exIndex, currentDateKey) {
+  const storage = getStorage();
+  const keys = Object.keys(storage).filter(k => k < currentDateKey).sort().reverse();
+  for (const k of keys) {
+    const d = storage[k];
+    if (d.type === type && d.exercises?.[exIndex]?.sets) {
+      const sets = d.exercises[exIndex].sets.filter(s => s.done);
+      if (sets.length) {
+        return sets.map(s => `${s.reps || '?'} reps · ${s.weight || 'PC'}`).join(', ');
+      }
+    }
+  }
+  return null;
+}
+
+function toggleEx(ei) {
+  const card = document.getElementById(`ex-${ei}`);
+  card.classList.toggle('open');
+}
+
+function saveSet(ei, si, field, value) {
+  const storage = getStorage();
+  if (!storage[currentDayKey]) storage[currentDayKey] = { type: currentSessionData.type, exercises: {} };
+  if (!storage[currentDayKey].exercises[ei]) storage[currentDayKey].exercises[ei] = { sets: {} };
+  if (!storage[currentDayKey].exercises[ei].sets[si]) storage[currentDayKey].exercises[ei].sets[si] = {};
+  storage[currentDayKey].exercises[ei].sets[si][field] = value;
+  saveStorage(storage);
+}
+
+function toggleSet(ei, si, btn) {
+  const storage = getStorage();
+  if (!storage[currentDayKey]) storage[currentDayKey] = { type: currentSessionData.type, exercises: {} };
+  if (!storage[currentDayKey].exercises[ei]) storage[currentDayKey].exercises[ei] = { sets: {} };
+  if (!storage[currentDayKey].exercises[ei].sets[si]) storage[currentDayKey].exercises[ei].sets[si] = {};
+  const current = storage[currentDayKey].exercises[ei].sets[si].done;
+  storage[currentDayKey].exercises[ei].sets[si].done = !current;
+  btn.classList.toggle('checked');
+  saveStorage(storage);
+}
+
+function completeSession() {
+  const storage = getStorage();
+  if (!storage[currentDayKey]) storage[currentDayKey] = {};
+  storage[currentDayKey].done = true;
+  storage[currentDayKey].type = currentSessionData.type;
+
+  // Count total sets done
+  let totalSets = 0;
+  const exercises = storage[currentDayKey].exercises || {};
+  Object.values(exercises).forEach(ex => {
+    Object.values(ex.sets || {}).forEach(s => { if (s.done) totalSets++; });
+  });
+  storage[currentDayKey].totalSets = totalSets;
+  saveStorage(storage);
+
+  document.getElementById('completeBtn').textContent = '✓ Sesión completada (volver a marcar)';
+  showToast('¡Sesión completada! 💪');
+  setTimeout(() => { goBack(); }, 1200);
+}
+
+// ══════════════════════════════════════════
+// HISTORY VIEW
+// ══════════════════════════════════════════
+function renderHistory() {
+  const storage = getStorage();
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+
+  const keys = Object.keys(storage).filter(k => storage[k].done).sort().reverse();
+
+  if (!keys.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px 20px;font-size:14px;">Aún no hay sesiones completadas.<br>¡Empieza hoy!</div>';
+    return;
+  }
+
+  const typeLabels = { push: '🔴 Empuje', pull: '🔵 Jale', 'legs-q': '🟣 Piernas Quad', 'legs-f': '🟢 Piernas Femoral', rest: 'Descanso' };
+
+  keys.forEach(k => {
+    const d = storage[k];
+    const date = new Date(k + 'T12:00:00');
+    const dateStr = date.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+    const sets = d.totalSets || 0;
+
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML = `
+      <div class="history-item-header">
+        <div>
+          <div class="history-date">${dateStr}</div>
+          <div class="history-title">${typeLabels[d.type] || d.type || 'Sesión'}</div>
+        </div>
+        <div class="day-badge" style="align-self:center">${sets} sets ✓</div>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('bottomNav').style.display = 'flex';
+  document.getElementById('backBtn').style.display = 'none';
+
+  if (name === 'week') {
+    document.getElementById('viewWeek').classList.add('active');
+    document.getElementById('navWeek').classList.add('active');
+    renderWeek();
+  } else if (name === 'session') {
+    document.getElementById('viewSession').classList.add('active');
+    document.getElementById('bottomNav').style.display = 'none';
+    document.getElementById('backBtn').style.display = 'flex';
+  } else if (name === 'history') {
+    document.getElementById('viewHistory').classList.add('active');
+    document.getElementById('navHistory').classList.add('active');
+    renderHistory();
+  }
+}
+
+function goBack() {
+  showView('week');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+renderWeek();
+</script>
+</body>
+</html>
