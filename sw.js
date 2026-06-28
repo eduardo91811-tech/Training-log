@@ -1,4 +1,4 @@
-const CACHE_NAME = 'training-log-v1';
+const CACHE_NAME = 'training-log-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -23,17 +23,18 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
+// Estrategia: network-first con fallback a caché
+// Siempre intenta la red primero — solo usa caché si no hay conexión
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(response => {
-        if (response && response.status === 200 && event.request.method === 'GET') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      }).catch(() => cached);
+    fetch(event.request).then(response => {
+      if (response && response.status === 200 && event.request.method === 'GET') {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+      }
+      return response;
+    }).catch(() => {
+      return caches.match(event.request);
     })
   );
 });
