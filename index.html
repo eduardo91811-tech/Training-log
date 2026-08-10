@@ -160,28 +160,53 @@ body {
 .warmup-desc { font-size: 11px; color: var(--muted2); line-height: 1.4; }
 .warmup-time { font-size: 11px; font-weight: 700; color: var(--warning); flex-shrink: 0; margin-top: 1px; }
 
-/* ── EXERCISE LIST ── */
+/* ── EXERCISE LIST (legacy, ya no se usa en session view) ── */
 .ex-list { padding: 0 18px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 110px; }
 
-.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-.ex-head { padding: 13px 14px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
-.ex-num { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; margin-top: 1px; }
-.ex-meta { flex: 1; min-width: 0; }
-.ex-name { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-.ex-muscle { font-size: 11px; color: var(--muted2); margin-bottom: 3px; }
-.ex-spec { font-size: 11px; color: var(--muted); }
-.ex-suggest { font-size: 11px; font-weight: 600; color: var(--warning); background: rgba(234,179,8,0.1); padding: 2px 7px; border-radius: 5px; display: inline-block; margin-top: 4px; }
-.ex-chevron { color: var(--muted); font-size: 11px; margin-top: 5px; flex-shrink: 0; transition: transform 0.2s; }
-.ex-card.open .ex-chevron { transform: rotate(180deg); }
+/* ══ SESSION CARD VIEW (tarjeta única navegable) ══ */
+.ecard-wrap { padding: 0 18px 110px; }
 
-.ex-body { display: none; border-top: 1px solid var(--border); }
-.ex-card.open .ex-body { display: block; }
+.ecard-progress { display: flex; gap: 5px; margin-bottom: 16px; }
+.ecard-dot { height: 4px; flex: 1; border-radius: 2px; background: var(--border2); cursor: pointer; }
+.ecard-dot.done { background: var(--success); }
+.ecard-dot.active { background: var(--color, var(--push)); }
 
-.ex-how { padding: 13px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); }
-.ex-how h4 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 9px; }
-.ex-how ol { padding-left: 16px; display: flex; flex-direction: column; gap: 5px; }
-.ex-how li { font-size: 12px; line-height: 1.5; color: #9aa0bc; }
-.ex-tip { margin-top: 10px; padding: 8px 11px; background: rgba(249,115,22,0.07); border-left: 3px solid var(--push); border-radius: 0 6px 6px 0; font-size: 11px; color: #9aa0bc; line-height: 1.4; }
+.ecard-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ecard-nav-label { font-size: 11px; color: var(--muted2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+.ecard-arrows { display: flex; gap: 6px; }
+.ecard-arrow-btn { width: 32px; height: 32px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border2); color: var(--text); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.ecard-arrow-btn:disabled { opacity: 0.3; cursor: default; }
+.ecard-arrow-btn:active:not(:disabled) { opacity: 0.7; }
+
+.ecard { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
+
+.ecard-visual { position: relative; width: 100%; aspect-ratio: 4/3; background: #0c0d10; overflow: hidden; }
+.ecard-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ecard-visual-placeholder { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color: var(--muted); }
+.ecard-visual-placeholder svg { width: 40px; height: 40px; opacity: 0.5; }
+.ecard-visual-placeholder span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; text-align: center; padding: 0 30px; line-height: 1.5; }
+.ecard-visual-tag { position:absolute; top:12px; right:12px; background: rgba(10,11,14,0.7); backdrop-filter: blur(4px); color: var(--text); font-size: 10px; font-weight: 700; letter-spacing: 0.7px; padding: 4px 9px; border-radius: 100px; display:flex; align-items:center; gap:5px; text-transform: uppercase; }
+.ecard-visual-tag .dot { width:6px; height:6px; border-radius:50%; }
+
+.ecard-body { padding: 18px; }
+.ecard-name { font-family: 'Space Grotesk', sans-serif; font-size: 19px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 3px; }
+.ecard-muscle { font-size: 12px; color: var(--muted2); margin-bottom: 14px; }
+
+.ecard-cue { background: rgba(255,255,255,0.03); border-left: 3px solid var(--color, var(--push)); border-radius: 0 8px 8px 0; padding: 10px 12px; font-size: 12.5px; color: #9aa0bc; line-height: 1.5; margin-bottom: 16px; }
+.ecard-cue strong { color: var(--text); font-weight: 700; }
+
+.ecard-howto { margin-bottom: 16px; }
+.ecard-howto h4 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 9px; }
+.ecard-howto ol { padding-left: 16px; display: flex; flex-direction: column; gap: 5px; }
+.ecard-howto li { font-size: 12px; line-height: 1.5; color: #9aa0bc; }
+
+.ecard-sets-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ecard-sets-head h4 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+
+.ecard-nextprev { display: flex; gap: 10px; }
+.ecard-side-btn { flex: 1; padding: 14px; border-radius: 14px; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; }
+.ecard-side-btn:active { opacity: 0.7; }
+.ecard-side-btn:disabled { opacity: 0.3; cursor: default; }
 
 /* ── SETS ── */
 .sets-log { padding: 12px 14px 14px; }
@@ -326,7 +351,7 @@ body {
   </div>
   <!-- Warm-up block (rendered by JS) -->
   <div id="warmupContainer"></div>
-  <div class="ex-list" id="exList"></div>
+  <div class="ecard-wrap" id="ecardWrap"></div>
   <div class="session-foot">
     <button class="finish-btn" id="finishBtn" onclick="finishSession()">Marcar sesión completada ✓</button>
   </div>
@@ -396,6 +421,157 @@ const TYPE_META = {
   combo:  { label:'Combo',    pillClass:'pill-combo',  stripeClass:'stripe-combo',  color:'var(--combo)' },
   rest:   { label:'Descanso', pillClass:'pill-rest',   stripeClass:'stripe-rest',   color:'var(--rest)' },
 };
+
+// ══════════════════════════════════════════════════
+// GUÍA VISUAL — palabras clave (inglés) para hacer matching local
+// contra la base completa de ExerciseDB (oss.exercisedb.dev), ya que
+// el parámetro "search" del endpoint gratuito no filtra de verdad —
+// devuelve la lista completa ignorando el término. Por eso descargamos
+// toda la base una vez (paginada), la cacheamos, y buscamos coincidencias
+// nosotros mismos comparando palabras dentro del campo "name".
+// ══════════════════════════════════════════════════
+const GIF_SEARCH_TERMS = {
+  'Chest Press en Brazos de Prensa (Marcy)': ['chest', 'press', 'machine'],
+  'Pec Fly con Brazos de Prensa (Mariposa)': ['butterfly'],
+  'Press de Hombro con Mancuernas': ['dumbbell', 'shoulder', 'press'],
+  'Elevación Lateral con Mancuernas': ['dumbbell', 'lateral', 'raise'],
+  'Reverse Fly con Mancuernas (Deltoide Posterior)': ['reverse', 'fly'],
+  'Pushdown de Tríceps (Cuerda)': ['triceps', 'pushdown'],
+  'Extensión de Tríceps Overhead (Barra Recta)': ['triceps', 'extension'],
+  'Jalón al Pecho Agarre Ancho': ['lat', 'pulldown'],
+  'Jalón Neutro con V-Bar': ['pulldown'],
+  'Remo en Polea Baja Sentado': ['seated', 'cable', 'row'],
+  'Remo Mancuerna Unilateral': ['one', 'arm', 'dumbbell', 'row'],
+  'Face Pull (Cuerda)': ['face', 'pull'],
+  'Curl de Bíceps en Polea Baja': ['cable', 'curl'],
+  'Remo al Mentón en Polea Baja (Upright Row)': ['upright', 'row'],
+  'Curl Martillo con Mancuernas': ['hammer', 'curl'],
+  'Curl de Muñeca + Curl Inverso (Antebrazo)': ['wrist', 'curl'],
+  'Sentadilla con Mancuernas (Goblet)': ['goblet', 'squat'],
+  'Extensión de Pierna en Máquina': ['leg', 'extension'],
+  'Zancada Reversa': ['reverse', 'lunge'],
+  'Patada de Glúteo en Cable (Tobillera)': ['cable', 'kickback'],
+  'Elevación de Pantorrilla de Pie': ['standing', 'calf', 'raise'],
+  'Ab Crunch en Polea Media': ['cable', 'crunch'],
+  'Hip Hinge / Peso Muerto con Mancuernas': ['dumbbell', 'romanian', 'deadlift'],
+  'Leg Curl en Máquina': ['leg', 'curl'],
+  'Hip Thrust con Banda': ['hip', 'thrust'],
+  'Patada de Glúteo en Cable de Pie (Standing Kickback)': ['standing', 'cable', 'kickback'],
+  'Abducción en Cable con Tobillera': ['cable', 'hip', 'abduction'],
+  'Pec Fly en Brazos de Prensa (Segunda Frecuencia)': ['butterfly'],
+  'Press de Hombros Arnold': ['arnold', 'press'],
+  'Chest Press en Brazos de Prensa (Segunda Frecuencia)': ['chest', 'press', 'machine'],
+  'Extensión de Tríceps Overhead (Barra Recta · Segunda Frecuencia)': ['triceps', 'extension'],
+  'Face Pull (Segunda Frecuencia)': ['face', 'pull'],
+  'Jalón con V-Handle Abierto': ['pulldown'],
+  'Remo en Polea Baja Unilateral (D-Ring)': ['one', 'arm', 'cable', 'row'],
+  'Curl en Polea Baja Unilateral (D-Ring)': ['cable', 'curl'],
+  'Encogimientos / Shrugs con Mancuernas': ['dumbbell', 'shrug'],
+  'Curl de Muñeca (Segunda Frecuencia)': ['wrist', 'curl'],
+};
+
+const EXDB_BASE = 'https://oss.exercisedb.dev/api/v1/exercises';
+const EXDB_CACHE_KEY = 'exdb_full_cache_v1';
+const EXDB_CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 14; // 14 días
+
+// Caché en memoria de GIFs ya resueltos (nombre local -> gifUrl)
+const gifCache = {};
+let exerciseDbFullList = null; // se llena una sola vez por sesión de la app
+let exerciseDbFetchPromise = null;
+
+function loadExdbFromStorage() {
+  try {
+    const raw = localStorage.getItem(EXDB_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.timestamp || !Array.isArray(parsed.list)) return null;
+    if (Date.now() - parsed.timestamp > EXDB_CACHE_TTL_MS) return null;
+    return parsed.list;
+  } catch(e) { return null; }
+}
+
+function saveExdbToStorage(list) {
+  try {
+    localStorage.setItem(EXDB_CACHE_KEY, JSON.stringify({ timestamp: Date.now(), list }));
+  } catch(e) { /* localStorage lleno o no disponible: seguimos sin cachear */ }
+}
+
+// Descarga TODA la base paginando por cursor. ~1500 ejercicios, se hace una sola vez
+// y se cachea en localStorage por 14 días para no repetir la descarga cada apertura.
+async function fetchFullExerciseDb() {
+  if (exerciseDbFullList) return exerciseDbFullList;
+  if (exerciseDbFetchPromise) return exerciseDbFetchPromise;
+
+  const cached = loadExdbFromStorage();
+  if (cached) {
+    exerciseDbFullList = cached;
+    return cached;
+  }
+
+  exerciseDbFetchPromise = (async () => {
+    const all = [];
+    let cursor = null;
+    let guard = 0;
+    try {
+      while (guard < 20) { // tope de seguridad: 20 páginas (~3000 items) por si acaso
+        guard++;
+        const url = cursor
+          ? `${EXDB_BASE}?limit=100&cursor=${encodeURIComponent(cursor)}`
+          : `${EXDB_BASE}?limit=100`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('bad response ' + res.status);
+        const json = await res.json();
+        const batch = json?.data || [];
+        all.push(...batch);
+        if (json?.meta?.hasNextPage && json?.meta?.nextCursor) {
+          cursor = json.meta.nextCursor;
+        } else {
+          break;
+        }
+      }
+      exerciseDbFullList = all;
+      if (all.length) saveExdbToStorage(all);
+      return all;
+    } catch(e) {
+      exerciseDbFullList = [];
+      return [];
+    }
+  })();
+
+  return exerciseDbFetchPromise;
+}
+
+// Busca el mejor match local: cuenta cuántas palabras clave aparecen en ex.name
+function findBestMatch(list, keywords) {
+  let best = null;
+  let bestScore = 0;
+  for (const item of list) {
+    const nameLower = (item.name || '').toLowerCase();
+    let score = 0;
+    for (const kw of keywords) {
+      if (nameLower.includes(kw.toLowerCase())) score++;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = item;
+    }
+  }
+  return bestScore > 0 ? best : null;
+}
+
+async function fetchExerciseGif(exerciseName) {
+  if (gifCache[exerciseName] !== undefined) return gifCache[exerciseName];
+  const keywords = GIF_SEARCH_TERMS[exerciseName];
+  if (!keywords) { gifCache[exerciseName] = null; return null; }
+
+  const list = await fetchFullExerciseDb();
+  if (!list.length) { gifCache[exerciseName] = null; return null; }
+
+  const match = findBestMatch(list, keywords);
+  const gifUrl = match?.gifUrl || null;
+  gifCache[exerciseName] = gifUrl;
+  return gifUrl;
+}
 
 // ══════════════════════════════════════════════════
 // CALENTAMIENTOS
@@ -985,6 +1161,7 @@ function saveDB(d) { localStorage.setItem('tlog3', JSON.stringify(d)); }
 // ══════════════════════════════════════════════════
 let weekOffset = 0;
 let activeSession = null;
+let currentExerciseIndex = 0;
 
 // ── REST TIMER STATE ──
 let restTimer = null;
@@ -1190,8 +1367,7 @@ function openSession(type, dateKey, dayLabel) {
   const session = SESSIONS[type];
   if(!session) return;
   activeSession = {type, dateKey, dayLabel};
-  const db = getDB();
-  const saved = db[dateKey] || {};
+  currentExerciseIndex = 0;
   const meta = TYPE_META[type];
 
   const pill = document.getElementById('sPill');
@@ -1200,67 +1376,169 @@ function openSession(type, dateKey, dayLabel) {
   document.getElementById('sTitle').textContent = dayLabel;
   document.getElementById('sSub').textContent = WEEK_PLAN.find(p=>p.type===type)?.sub || '';
 
-  const isDone = saved.done;
-  const btn = document.getElementById('finishBtn');
-  btn.textContent = isDone ? '✓ Sesión completada — volver a marcar' : 'Marcar sesión completada ✓';
-  btn.className = isDone ? 'finish-btn done-state' : 'finish-btn';
+  updateFinishBtnState();
 
   // Warm-up
   renderWarmup(type, meta);
 
-  // Exercises
-  const exList = document.getElementById('exList');
-  exList.innerHTML = '';
-  const color = meta.color;
+  // Progress dots (uno por ejercicio)
+  renderProgressDots();
 
-  session.exercises.forEach((ex, ei) => {
-    const savedEx = saved.exercises?.[ei] || {};
-    const card = document.createElement('div');
-    card.className = 'ex-card';
-    card.id = `ec${ei}`;
-
-    let setsHTML = '';
-    for(let s=0; s<ex.sets; s++){
-      const ss = savedEx.sets?.[s] || {};
-      const isDoneSet = ss.done || false;
-      setsHTML += `
-        <div class="set-row${isDoneSet?' done-row':''}" id="sr${ei}_${s}">
-          <div class="set-n">${s+1}</div>
-          <div class="set-suggest"><strong>${ex.repsHint} reps</strong> · ${ex.suggest}</div>
-          <button class="set-done-btn${isDoneSet?' done':''}" id="sb${ei}_${s}" onclick="toggleSetDone(${ei},${s},this,'${ex.name.replace(/'/g,"\\'")}',${ex.rest},'${color}')">✓</button>
-        </div>`;
-    }
-
-    card.innerHTML = `
-      <div class="ex-head" onclick="toggleEx(${ei})">
-        <div class="ex-num" style="background:${color}18;color:${color}">${ei+1}</div>
-        <div class="ex-meta">
-          <div class="ex-name">${ex.name}</div>
-          <div class="ex-muscle">${ex.muscle}</div>
-          <div class="ex-spec">${ex.spec}</div>
-          <div class="ex-suggest">💡 ${ex.suggest}</div>
-        </div>
-        <div class="ex-chevron">▼</div>
-      </div>
-      <div class="ex-body">
-        <div class="ex-how">
-          <h4>Cómo ejecutarlo</h4>
-          <ol>${ex.instructions.map(i=>`<li>${i}</li>`).join('')}</ol>
-          <div class="ex-tip">⚡ ${ex.tip}</div>
-        </div>
-        <div class="sets-log">
-          <div class="sets-log-head">
-            <h4>Series</h4>
-            <span class="rest-label">⏱ Descanso: ${ex.rest}s</span>
-          </div>
-          <div class="set-rows">${setsHTML}</div>
-        </div>
-      </div>`;
-
-    exList.appendChild(card);
-  });
+  // Primera tarjeta
+  renderExerciseCard(currentExerciseIndex);
 
   showView('session');
+}
+
+function updateFinishBtnState() {
+  const db = getDB();
+  const saved = db[activeSession.dateKey] || {};
+  const isDone = saved.done;
+  const btn = document.getElementById('finishBtn');
+  btn.textContent = isDone ? '✓ Sesión completada — volver a marcar' : 'Marcar sesión completada ✓';
+  btn.className = isDone ? 'finish-btn done-state' : 'finish-btn';
+}
+
+function getSessionSetsDoneCount(ei) {
+  const db = getDB();
+  const saved = db[activeSession.dateKey] || {};
+  const savedEx = saved.exercises?.[ei] || {};
+  const session = SESSIONS[activeSession.type];
+  const ex = session.exercises[ei];
+  let done = 0;
+  for(let s=0; s<ex.sets; s++){
+    if(savedEx.sets?.[s]?.done) done++;
+  }
+  return { done, total: ex.sets };
+}
+
+function renderProgressDots() {
+  const session = SESSIONS[activeSession.type];
+  const row = document.createElement('div');
+  row.className = 'ecard-progress';
+  row.id = 'ecardProgress';
+  session.exercises.forEach((ex, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'ecard-dot';
+    dot.dataset.idx = i;
+    dot.onclick = () => { currentExerciseIndex = i; renderExerciseCard(i); };
+    row.appendChild(dot);
+  });
+  const wrap = document.getElementById('ecardWrap');
+  wrap.innerHTML = '';
+  wrap.appendChild(row);
+  updateProgressDots();
+}
+
+function updateProgressDots() {
+  const row = document.getElementById('ecardProgress');
+  if(!row) return;
+  const session = SESSIONS[activeSession.type];
+  [...row.children].forEach((dot, i) => {
+    const { done, total } = getSessionSetsDoneCount(i);
+    dot.classList.toggle('done', done >= total && total > 0);
+    dot.classList.toggle('active', i === currentExerciseIndex);
+  });
+}
+
+function renderExerciseCard(ei) {
+  const session = SESSIONS[activeSession.type];
+  const ex = session.exercises[ei];
+  const meta = TYPE_META[activeSession.type];
+  const color = meta.color;
+  const db = getDB();
+  const saved = db[activeSession.dateKey] || {};
+  const savedEx = saved.exercises?.[ei] || {};
+
+  let setsHTML = '';
+  for(let s=0; s<ex.sets; s++){
+    const ss = savedEx.sets?.[s] || {};
+    const isDoneSet = ss.done || false;
+    setsHTML += `
+      <div class="set-row${isDoneSet?' done-row':''}" id="sr${ei}_${s}">
+        <div class="set-n">${s+1}</div>
+        <div class="set-suggest"><strong>${ex.repsHint} reps</strong> · ${ex.suggest}</div>
+        <button class="set-done-btn${isDoneSet?' done':''}" id="sb${ei}_${s}" onclick="toggleSetDone(${ei},${s},this,'${ex.name.replace(/'/g,"\\'")}',${ex.rest},'${color}')">✓</button>
+      </div>`;
+  }
+
+  const wrap = document.getElementById('ecardWrap');
+  // Conserva la barra de progreso, reemplaza el resto
+  let progressRow = document.getElementById('ecardProgress');
+
+  const nav = document.createElement('div');
+  nav.className = 'ecard-nav-row';
+  nav.innerHTML = `
+    <span class="ecard-nav-label">Ejercicio ${ei+1} de ${session.exercises.length}</span>
+    <div class="ecard-arrows">
+      <button class="ecard-arrow-btn" id="ecardPrev" ${ei===0?'disabled':''}>‹</button>
+      <button class="ecard-arrow-btn" id="ecardNext" ${ei===session.exercises.length-1?'disabled':''}>›</button>
+    </div>`;
+
+  const card = document.createElement('div');
+  card.className = 'ecard';
+  card.style.setProperty('--color', color);
+  card.innerHTML = `
+    <div class="ecard-visual">
+      <div class="ecard-visual-placeholder" id="ecardVisualPh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+        <span>Buscando guía visual…</span>
+      </div>
+      <div class="ecard-visual-tag"><span class="dot" style="background:${color}"></span>LOOP</div>
+    </div>
+    <div class="ecard-body">
+      <div class="ecard-name">${ex.name}</div>
+      <div class="ecard-muscle">${ex.muscle} · ${ex.spec}</div>
+      <div class="ecard-cue"><strong>⚡ Tip:</strong> ${ex.tip}</div>
+      <div class="ecard-howto">
+        <h4>Cómo ejecutarlo</h4>
+        <ol>${ex.instructions.map(i=>`<li>${i}</li>`).join('')}</ol>
+      </div>
+      <div class="ecard-sets-head">
+        <h4>Series</h4>
+        <span class="rest-label">⏱ Descanso: ${ex.rest}s</span>
+      </div>
+      <div class="set-rows">${setsHTML}</div>
+    </div>`;
+
+  const nextprev = document.createElement('div');
+  nextprev.className = 'ecard-nextprev';
+  nextprev.innerHTML = `
+    <button class="ecard-side-btn" id="ecardPrevBtn" ${ei===0?'disabled':''}>‹ Anterior</button>
+    <button class="ecard-side-btn" id="ecardNextBtn" ${ei===session.exercises.length-1?'disabled':''}>Siguiente ›</button>`;
+
+  wrap.innerHTML = '';
+  if(progressRow) wrap.appendChild(progressRow);
+  wrap.appendChild(nav);
+  wrap.appendChild(card);
+  wrap.appendChild(nextprev);
+
+  updateProgressDots();
+
+  const goPrev = () => { if(currentExerciseIndex>0){ currentExerciseIndex--; renderExerciseCard(currentExerciseIndex); } };
+  const goNext = () => { if(currentExerciseIndex<session.exercises.length-1){ currentExerciseIndex++; renderExerciseCard(currentExerciseIndex); } };
+  document.getElementById('ecardPrev').onclick = goPrev;
+  document.getElementById('ecardNext').onclick = goNext;
+  document.getElementById('ecardPrevBtn').onclick = goPrev;
+  document.getElementById('ecardNextBtn').onclick = goNext;
+
+  // Cargar GIF en vivo (requiere internet); si falla, se queda el placeholder
+  fetchExerciseGif(ex.name).then(gifUrl => {
+    // Solo aplica si seguimos en el mismo ejercicio (evita condiciones de carrera al navegar rápido)
+    if (currentExerciseIndex !== ei) return;
+    const ph = document.getElementById('ecardVisualPh');
+    if (!ph) return;
+    if (gifUrl) {
+      const img = document.createElement('img');
+      img.src = gifUrl;
+      img.alt = ex.name;
+      img.loading = 'lazy';
+      img.onload = () => { ph.replaceWith(img); };
+      img.onerror = () => { ph.querySelector('span').textContent = 'No se pudo cargar la guía visual'; };
+    } else {
+      ph.querySelector('span').textContent = 'Sin conexión o sin coincidencia para este ejercicio';
+    }
+  });
 }
 
 function renderWarmup(type, meta) {
@@ -1303,10 +1581,6 @@ function toggleWarmup() {
   document.getElementById('warmupBlock')?.classList.toggle('open');
 }
 
-function toggleEx(ei) {
-  document.getElementById(`ec${ei}`).classList.toggle('open');
-}
-
 function toggleSetDone(ei, si, btn, exName, restSecs, color) {
   if(!activeSession) return;
   const db = getDB();
@@ -1324,6 +1598,7 @@ function toggleSetDone(ei, si, btn, exName, restSecs, color) {
   btn.classList.toggle('done', nowDone);
   const row = document.getElementById(`sr${ei}_${si}`);
   if(row) row.classList.toggle('done-row', nowDone);
+  updateProgressDots();
 
   // Disparar timer solo al marcar como hecha (no al desmarcar)
   if(nowDone) {
