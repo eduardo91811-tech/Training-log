@@ -425,7 +425,7 @@ const WEEK_PLAN = [
   { dow:2, type:'pull',   title:'Jale',               sub:'Espalda · Bíceps · Remo' },
   { dow:3, type:'legs-q', title:'Piernas Quad',        sub:'Cuádriceps · Glúteo · Pantorrilla' },
   { dow:4, type:'rest',   title:'Descanso',            sub:'Recuperación activa' },
-  { dow:5, type:'legs-f', title:'Piernas Femoral',     sub:'Femoral · Glúteo · Abductores' },
+  { dow:5, type:'legs-f', title:'Piernas Femoral',     sub:'Femoral · Glúteo · Pantorrilla' },
   { dow:6, type:'combo',  title:'Empuje + Jale',       sub:'Volumen combinado · Mantenimiento' },
   { dow:0, type:'rest',   title:'Descanso',            sub:'Recuperación completa' },
 ];
@@ -771,13 +771,13 @@ pull: { exercises: [
   },
   {
     name: 'Extensión de Pierna en Máquina', muscle: 'Cuádriceps — aislamiento completo',
-    spec: '3 × 12-15 · Accesorio leg extension Marcy', suggest: 'Pila que permita 12 reps con pausa arriba — no solo subir y bajar',
-    sets: 3, repsHint: '12-15', rest: 75,
+    spec: '4 × 12-15 · Accesorio leg extension Marcy', suggest: 'Pila que permita 12 reps con pausa arriba — no solo subir y bajar',
+    sets: 4, repsHint: '12-15', rest: 75,
     instructions: [
       'Ajusta el pad para que quede sobre los tobillos (no espinillas).',
       'Siéntate con la espalda apoyada. Rodillas a 90° al inicio.',
       'Extiende las piernas hasta casi bloquear las rodillas.',
-      'Mantén la contracción 1 segundo arriba — aprieta el cuádriceps.',
+      'Mantén la contracción 2 segundos arriba — aprieta el cuádriceps.',
       'Baja con 3 segundos de control. No dejes caer el peso.'
     ],
     tip: 'El gran upgrade vs la polaina. Puedes cargar progresivamente y aislar el cuádriceps de verdad. El excéntrico lento (bajar) genera más hipertrofia que el concéntrico.'
@@ -796,17 +796,17 @@ pull: { exercises: [
     tip: 'La zancada reversa es más amigable con la rodilla que la estacionaria porque el movimiento es más controlado. Si sientes la rodilla, prueba dar un paso más largo.'
   },
   {
-    name: 'Patada de Glúteo en Cable (Tobillera)', muscle: 'Glúteo mayor · Femoral',
-    spec: '3 × 15 c/lado · Polea baja · Tobillera', suggest: 'Pila ligera — el movimiento es pequeño, no necesitas mucho peso',
-    sets: 3, repsHint: '15 c/lado', rest: 60,
+    name: 'Sentadilla Búlgara con Mancuernas', muscle: 'Cuádriceps · Glúteo · Estabilizadores de rodilla',
+    spec: '3 × 8-10 c/lado · Mancuernas ~9 kg · Pie trasero en silla', suggest: 'Con 9 kg ya cuesta — al ser unilateral la carga efectiva es mucho mayor que en la goblet',
+    sets: 3, repsHint: '8-10 c/lado', rest: 90,
     instructions: [
-      'Conecta la tobillera a la polea baja. Ponte de pie frente a la máquina.',
-      'Apoya las manos en la máquina para equilibrio.',
-      'Cadera fija y neutral durante todo el movimiento.',
-      'Empuja la pierna hacia atrás y arriba contrayendo el glúteo.',
-      'Regresa con control — no dejes que el cable te jale de golpe.'
+      'Pie trasero apoyado (empeine) sobre una silla o sillón, a unos 40-50 cm de altura. Pie delantero a ~60-70 cm de distancia.',
+      'Una mancuerna en cada mano a los lados. Si necesitas equilibrio, apoya una mano en el marco de la Marcy y usa una sola mancuerna.',
+      'Baja verticalmente, rodilla delantera siguiendo la dirección del pie, torso ligeramente inclinado.',
+      'Baja hasta que el muslo delantero quede paralelo al suelo o más.',
+      'Sube empujando con el talón delantero. Completa todas las reps de un lado antes de cambiar.'
     ],
-    tip: 'La clave es que la cadera no se mueva. Si te inclinas o rotas la cadera, estás sacando al glúteo del movimiento. Pequeño rango con glúteo activado > gran rango con compensación.'
+    tip: 'Sustituye a las patadas en cable: aquí el cuádriceps recibe tensión real aunque estés limitado a 9 kg. Empieza por el lado más débil y iguala las reps del otro.'
   },
   {
     name: 'Elevación de Pantorrilla de Pie', muscle: 'Gastrocnemio · Soleo',
@@ -856,8 +856,8 @@ pull: { exercises: [
   },
   {
     name: 'Leg Curl en Máquina', muscle: 'Femoral — aislamiento real con carga progresiva',
-    spec: '4 × 10-12 · Accesorio leg curl Marcy', suggest: 'El upgrade más importante de pierna femoral vs el plan anterior',
-    sets: 4, repsHint: '10-12', rest: 75,
+    spec: '5 × 10-12 · Accesorio leg curl Marcy', suggest: 'El upgrade más importante de pierna femoral vs el plan anterior',
+    sets: 5, repsHint: '10-12', rest: 75,
     instructions: [
       'Ajusta el pad para que quede sobre los talones/tobillos.',
       'Acuéstate boca abajo. Caderas pegadas al pad — no las levantes.',
@@ -881,30 +881,17 @@ pull: { exercises: [
     tip: 'Sin superficie elevada ni banda, el hip thrust en piso con polaina sigue siendo altamente efectivo si mantienes la pausa arriba. La activación del glúteo viene de la contracción isométrica, no solo del rango de movimiento.'
   },
   {
-    name: 'Patada de Glúteo en Cable de Pie (Standing Kickback)', muscle: 'Glúteo mayor · Femoral proximal',
-    spec: '3 × 15 c/lado · Polea baja · Tobillera', suggest: 'Pila ligera — cadera fija, solo mueve la pierna',
-    sets: 3, repsHint: '15 c/lado', rest: 60,
+    name: 'Elevación de Pantorrilla a Una Pierna', muscle: 'Gastrocnemio · Soleo',
+    spec: '3 × 15-20 c/lado · Una mancuerna · Escalón o suelo', suggest: 'Mancuerna en la mano del mismo lado de la pierna que trabaja — cuando 20 reps sean fáciles, sube peso',
+    sets: 3, repsHint: '15-20 c/lado', rest: 45,
     instructions: [
-      'Tobillera en la polea baja. Párate frente a la máquina, apoya las manos.',
-      'Cadera completamente fija y neutral durante todo el movimiento.',
-      'Empuja la pierna hacia atrás y arriba contrayendo el glúteo en el tope.',
-      'Rodilla ligeramente flexionada — no extiendas la rodilla para llegar más alto.',
-      'Regresa con control — no dejes que el cable jale la pierna de golpe.'
+      'De pie sobre una pierna en el borde de un escalón. La otra pierna cruzada atrás o flexionada.',
+      'Una mano en la pared para equilibrio; la otra sostiene una mancuerna.',
+      'Baja el talón por debajo del escalón — rango máximo, con pausa de 1 segundo abajo.',
+      'Sube en la punta del pie lo más alto posible y aprieta 1 segundo arriba.',
+      'Baja lento. Completa todas las reps de una pierna antes de cambiar.'
     ],
-    tip: 'Este reemplaza al good morning. Trabaja glúteo mayor con tensión constante del cable, que es superior a la banda porque la resistencia no decrece al final del movimiento.'
-  },
-  {
-    name: 'Abducción en Cable con Tobillera', muscle: 'Glúteo medio · Glúteo menor · TFL',
-    spec: '3 × 15 c/lado · Polea baja · Tobillera', suggest: 'Pila muy ligera — el glúteo medio es pequeño pero esencial',
-    sets: 3, repsHint: '15 c/lado', rest: 60,
-    instructions: [
-      'Tobillera en la polea baja. Párate de lado a la máquina.',
-      'Apoya la mano en la máquina para equilibrio. Rodilla de apoyo ligeramente flexionada.',
-      'Sube la pierna lateral con el cable (alejándola de la máquina) sin inclinar el torso.',
-      'Control total al bajar — no dejes que el cable te jale la pierna.',
-      'Completa las reps de un lado y voltea para el otro.'
-    ],
-    tip: 'El glúteo medio estabiliza la pelvis en cada paso que das. Su debilidad causa compensaciones en rodilla y cadera. 3 series semanales de mantenimiento es lo que necesitas.'
+    tip: 'Segunda exposición semanal de pantorrilla (la primera es el miércoles). Con una sola pierna 9 kg ya es carga real — el volumen repartido en 2 días funciona mejor que 7 series en uno.'
   },
 ]},
 
@@ -1016,17 +1003,17 @@ combo: { exercises: [
     tip: 'La supinación al subir activa el bíceps braquial más que el braquial. Es el curl más completo técnicamente. Segunda frecuencia de bíceps con estímulo diferente al martes.'
   },
   {
-    name: 'Encogimientos / Shrugs con Mancuernas', muscle: 'Trapecio superior',
-    spec: '3 × 15-20 · Mancuernas máximo peso', suggest: '~9 kg por mancuerna — pausa arriba 1 segundo',
+    name: 'Elevación Lateral con Mancuernas (Segunda Frecuencia)', muscle: 'Deltoides medial — ancho de hombros',
+    spec: '3 × 15-20 · Mancuernas ligeras', suggest: 'Misma carga que el lunes o un poco menos — el deltoides medial responde al volumen, no al peso',
     sets: 3, repsHint: '15-20', rest: 45,
     instructions: [
-      'De pie, mancuernas a los lados.',
-      'Sube los hombros directamente hacia las orejas — no los rotes.',
-      'Mantén 1 segundo en la posición más alta.',
-      'Baja con control completo.',
-      'No uses el cuello — el movimiento sale de los trapecios.'
+      'De pie. Codos ligeramente flexionados (~15°), nunca rectos.',
+      'Sube los brazos lateralmente hasta la altura del hombro — no más.',
+      'Al llegar arriba el dorso de la mano apunta al techo (como vaciar una jarra).',
+      'Baja 3 segundos. El negativo es donde más crece.',
+      'Considera dropset en la última serie: baja el peso y sigue hasta el fallo.'
     ],
-    tip: 'El trapecio superior cierra la sesión de pull. Volumen de mantenimiento en el sábado — no compitas con el martes. El cuello no debe tensarse; si lo hace, baja el peso.'
+    tip: 'Segunda exposición semanal del deltoides medial (el lunes tienes 3 series). Con estas 3 series llegas a 6 directas por semana, que era lo que le faltaba al hombro. El trapecio ya recibe volumen de remos, face pulls y upright row.'
   },
   {
   name: 'Curl de Muñeca (Segunda Frecuencia)', muscle: 'Flexores del antebrazo — grip',
